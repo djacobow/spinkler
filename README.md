@@ -81,38 +81,38 @@ happy to take pull requests.
 1. obtain a 16x2 LCD and solder a 16-pin 0.1" header to the 
    back of it so that the pins point backwards
 
-    2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
-       and solder those pins on, also on the back
+2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
+   and solder those pins on, also on the back
 
-    3. Attach the LCD and Pi Zero the main board. You can use
-       mounting hardware to secure them. The holes should line up
+3. Attach the LCD and Pi Zero the main board. You can use
+   mounting hardware to secure them. The holes should line up
 
-    4. insert fuses into the fuse holder. 1A for the left and 2A 
-       for the right would be ideal
+4. insert fuses into the fuse holder. 1A for the left and 2A 
+   for the right would be ideal
 
-    5. Get a 24 VAC plug pack (perhaps from your old controller) and
-       attach the wires to the 24VAC AC1 and AC0 terminals of the board
+5. Get a 24 VAC plug pack (perhaps from your old controller) and
+   attach the wires to the 24VAC AC1 and AC0 terminals of the board
 
 ### Software Setup
 
-    1. Install an OS on your Raspberry Pi Zero. I like Raspbian Lite because
-       I won't be using the gui and why bring in more software than you need?
+1. Install an OS on your Raspberry Pi Zero. I like Raspbian Lite because
+   I won't be using the gui and why bring in more software than you need?
 
-    2. Install Python3 if it is not already on there:
+2. Install Python3 if it is not already on there:
 
-       ```sh
-       sudo apt install python3
-       ```
+   ```sh
+   sudo apt install python3
+   ```
 
-       Also, install a few packages. You can do some of these with pip,
-       but I prefer to get them from the apt repos when I can.
+   Also, install a few packages. You can do some of these with pip,
+   but I prefer to get them from the apt repos when I can.
 
-       ```sh
-       sudo apt install \
-           python3-rpi.gpio \
-           python3-dateutil \
-           python3-googleapiclient
-       ```
+   ```sh
+   sudo apt install \
+       python3-rpi.gpio \
+       python3-dateutil \
+       python3-googleapiclient
+   ```
 
     3. Create a working directory for this project and clone the code to it:
 
