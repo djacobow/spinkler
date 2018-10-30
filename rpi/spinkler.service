@@ -1,0 +1,14 @@
+[Unit]
+Description=SPinkler - RPi irrigation system
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/spinkler/rpi
+ExecStart=/home/pi/spinkler/rpi/spinkler.py
+Restart=on-failure
+# Other Restart options: or always, on-abort, etc
+
+[Install]
+WantedBy=multi-user.target
