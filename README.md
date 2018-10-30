@@ -78,8 +78,8 @@ happy to take pull requests.
 
 ### Hardware Setup
 
-    1. obtain a 16x2 LCD and solder a 16-pin 0.1" header to the 
-       back of it so that the pins point backwards
+1. obtain a 16x2 LCD and solder a 16-pin 0.1" header to the 
+   back of it so that the pins point backwards
 
     2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
        and solder those pins on, also on the back
