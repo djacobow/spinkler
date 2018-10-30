@@ -114,109 +114,109 @@ happy to take pull requests.
        python3-googleapiclient
    ```
 
-    3. Create a working directory for this project and clone the code to it:
+3. Create a working directory for this project and clone the code to it:
 
-       ```sh
-       cd ~
-       git clone https://github.com/djacobow/spinkler
-       cd spinkler
-       ```
+   ```sh
+   cd ~
+   git clone https://github.com/djacobow/spinkler
+   cd spinkler
+   ```
 
-    3. Create a Google Project
+3. Create a Google Project
 
-       The code to run the calendar is going to run under a Google Project
-       that *you* control rather than me. You will need to create a project,
-       turn on the Calendar API, generate a credential, and download it.
+   The code to run the calendar is going to run under a Google Project
+   that *you* control rather than me. You will need to create a project,
+   turn on the Calendar API, generate a credential, and download it.
 
-       Without getting too much into how this all works, these are the
-       basic steps:
+   Without getting too much into how this all works, these are the
+   basic steps:
 
-       * Go to console.cloud.google.com and creata project by clicking on the 
-         down triangle at the top and then clicking "new project"
-       * name the project and fill in whatever you want or not, it doesn't 
-         really matter
-       * Click on API's and services, search for Calendar API and click to 
-         enable it. 
-       * generate credentials. You can use the help walkthrough to figure out 
-         what you will need, but basically you want a client_id. Tell it that 
-         you will be accessing user data from a CLI UI.
-       * download the credential you just made and save it in the folder your
-         just created with your git pull as `spinkler_client_secrets.json`.
+   * Go to console.cloud.google.com and creata project by clicking on the 
+     down triangle at the top and then clicking "new project"
+   * name the project and fill in whatever you want or not, it doesn't 
+     really matter
+   * Click on API's and services, search for Calendar API and click to 
+     enable it. 
+   * generate credentials. You can use the help walkthrough to figure out 
+     what you will need, but basically you want a client_id. Tell it that 
+     you will be accessing user data from a CLI UI.
+   * download the credential you just made and save it in the folder your
+     just created with your git pull as `spinkler_client_secrets.json`.
 
-       This credential does not give access to your Google Account. It 
-       identifies the app and lets the app *request* credentials to see your 
-       Google Account account.
+   This credential does not give access to your Google Account. It 
+   identifies the app and lets the app *request* credentials to see your 
+   Google Account account.
 
-    4. Run the script `list_cals.py`
+4. Run the script `list_cals.py`
 
-       When you do, you will be presented with an URL. Copy and paste this to your
-       browser, log in, and then copy and paste the resulting token back into
-       your text window.
+   When you do, you will be presented with an URL. Copy and paste this to your
+   browser, log in, and then copy and paste the resulting token back into
+   your text window.
 
-       Once you have done that, `list_cals.py` will show a list of calendars that
-       your account can see. You can use one of these for your sprinklers, but 
-       I suggest instead you creat a calendar just for the purpose.
+   Once you have done that, `list_cals.py` will show a list of calendars that
+   your account can see. You can use one of these for your sprinklers, but 
+   I suggest instead you creat a calendar just for the purpose.
 
-       Open Google Calendar in a browser, and click the plus sign next to "Add
-       a friend's calendar", then click "New Calendar" and give it a name, etc.
+   Open Google Calendar in a browser, and click the plus sign next to "Add
+   a friend's calendar", then click "New Calendar" and give it a name, etc.
 
-       If you've created a new calendar, run the list_cals script again. You'll
-       notice it only asks for your login once. After that, it will remember by
-       storing a token in `~/.spinkler`.
+   If you've created a new calendar, run the list_cals script again. You'll
+   notice it only asks for your login once. After that, it will remember by
+   storing a token in `~/.spinkler`.
 
-       Anyway, copy the calendar ID associated with the calendar you want to use
-       and paste it into spinkler.py in the config section under the key
-       `"sprinkler_calendar"`.
+   Anyway, copy the calendar ID associated with the calendar you want to use
+   and paste it into spinkler.py in the config section under the key
+   `"sprinkler_calendar"`.
 
-    5. Create your sprinkling schdule
+5. Create your sprinkling schdule
 
-    It's easy to add a watering to your schedule. Just create an event
-    in the calendar the Spinkler can see (the one you just edited into
-    Spinkler.py) and set the title to "water". The description tells 
-    what zones you want watered and how long, in this format:
+It's easy to add a watering to your schedule. Just create an event
+in the calendar the Spinkler can see (the one you just edited into
+Spinkler.py) and set the title to "water". The description tells 
+what zones you want watered and how long, in this format:
 
 
-    ```
-    run 3 duration 2
-    run 4 duration 0.2
-    run 5 duration 0:02
-    ```
+```
+run 3 duration 2
+run 4 duration 0.2
+run 5 duration 0:02
+```
 
-    In this case, zones 3, 4, and 5 will be run sequenually for 2 hours,
-    0.2 hours (that's 12 minutes) and 2 minutes, respectively. As you see,
-    each lien starts with "run" then the zone number to run, then the 
-    duration to run in either hours (fractions allowed) or hours:minutes
+In this case, zones 3, 4, and 5 will be run sequenually for 2 hours,
+0.2 hours (that's 12 minutes) and 2 minutes, respectively. As you see,
+each lien starts with "run" then the zone number to run, then the 
+duration to run in either hours (fractions allowed) or hours:minutes
 
-    You can create as many events as you like, they can repeat, run only on 
-    weekdays, etc, whatever you want.
+You can create as many events as you like, they can repeat, run only on 
+weekdays, etc, whatever you want.
 
-    6. Run the spinkler program:
+6. Run the spinkler program:
 
-    Just run:
+Just run:
 
-    ```
-    ./spinkler.py
-    ```
+```
+./spinkler.py
+```
 
-    and you should be off to the races.
+and you should be off to the races.
 
-    You can run it now to see if it works. Once you have it working 
-    properly, you can set it up to run as a service so that it starts
-    automatically at boot and will be restarted automatically if it crashes for
-    some reasons
+You can run it now to see if it works. Once you have it working 
+properly, you can set it up to run as a service so that it starts
+automatically at boot and will be restarted automatically if it crashes for
+some reasons
 
-    ```sh
-    cp spinkler.service /etc/systemd/system
-    sudo systemctl daemon-reload
-    sudo systemctl enable spinkler
-    sudo systemclt restart spinkler
-    ```
+```sh
+cp spinkler.service /etc/systemd/system
+sudo systemctl daemon-reload
+sudo systemctl enable spinkler
+sudo systemclt restart spinkler
+```
 
-    You can see how spinkler is doing with:
+You can see how spinkler is doing with:
 
-    ```
-    sudo journalctl -f -u spinkler
-    ```
+```
+sudo journalctl -f -u spinkler
+```
 
 
 
