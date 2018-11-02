@@ -5,6 +5,7 @@ import GoogleCalendarReader
 import SpinklerTimer
 from drivers import lcd
 from drivers import triacs
+from drivers import bb595
 
 config = {
     'google': {
@@ -23,7 +24,7 @@ config = {
 
 if __name__ == '__main__':
 
-    shifter = lcd.bb595()
+    shifter = bb595.bb595()
     disp = lcd.LCD(shifter)
     disp.begin()
     disp.clear()
