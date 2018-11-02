@@ -2,8 +2,8 @@
 
 import datetime
 import time
-
 import socket
+
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -54,9 +54,10 @@ def update_display(lcd, zinfo = None, next_ev = None):
         
 
 if __name__ == '__main__':
+    import bb595
     import lcd
     import random
-    s8 = lcd.bb595()
+    s8 = bb595.bb595()
     lcd = lcd.LCD(s8)
     lcd.begin()
     lcd.clear()
