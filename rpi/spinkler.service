@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/spinkler/rpi
-ExecStart=/home/pi/spinkler/rpi/spinkler.py
+WorkingDirectory=/home/pi/projects/spinkler/rpi
+ExecStart=/home/pi/projects/spinkler/rpi/spinkler.py
 Restart=on-failure
 # Other Restart options: or always, on-abort, etc
 

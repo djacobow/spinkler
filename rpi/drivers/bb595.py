@@ -1,5 +1,16 @@
 import RPi.GPIO as GPIO
 
+def flip8(b):
+    b = ((b >> 4) & 0x0f) | ((b << 4) & 0xf0)
+    b = ((b >> 2) & 0x33) | ((b << 2) & 0xcc)
+    b = ((b >> 1) & 0x55) | ((b << 1) & 0xaa)
+    return b
+  
+def flip4(n):
+    n = ((n >> 2) & 0x33) | ((n << 2) & 0xcc)
+    n = ((n >> 1) & 0x55) | ((n << 1) & 0xaa)
+    return n
+
 
 class bb595:
 

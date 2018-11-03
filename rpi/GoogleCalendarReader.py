@@ -139,7 +139,7 @@ class GoogleCalendarReader(object):
         # self.debugEVs(events['items'])
 
         if events and len(events['items']):
-            events = list(filter(lambda ev: self.gapi_fromisodate(ev['start']['dateTime']).replace(tzinfo=None) >= now, events['items']))
+            events = list(filter(lambda ev: self.gapi_fromisodate(ev['start']['dateTime']).replace(tzinfo=None) >= now and re.match(r'watering',ev['summary']), events['items']))
             print('AFTER FILTER')
             self.debugEVs(events)
             if len(events):

@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+from drivers import bb595
+
 class Triacs(object):
     def __init__(self,shifter):
         self.sh8 = shifter
 
     def set(self,v):
+        # zones are reverse order of byte
+        v = bb595.flip8(v)
         self.sh8.send8(v & 0xff, 'triacs')
     def enable(self,en):
         self.sh8.triac_en(en)

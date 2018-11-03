@@ -3,11 +3,12 @@
 import time
 import random
 import json
-
+from drivers import bb595
 
 class LCD:
-    def __init__(self, shifter):
+    def __init__(self, shifter, ltype = '16x2'):
         self.shifter = shifter
+        self.ltype = ltype
         self.LED_MASK       = 0x01
         self.BACKLIGHT_MASK = 0x02
         self.RS_MASK        = 0x04
@@ -51,19 +52,11 @@ class LCD:
         self.dctrl         = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
         self.curr595       = 0
 
-    def flip8(self,b):
-        b = ((b >> 4) & 0x0f) | ((b << 4) & 0xf0)
-        b = ((b >> 2) & 0x33) | ((b << 2) & 0xcc)
-        b = ((b >> 1) & 0x55) | ((b << 1) & 0xaa)
-        return b
-      
-    def flip4(self,n):
-        n = ((n >> 2) & 0x33) | ((n << 2) & 0xcc)
-        n = ((n >> 1) & 0x55) | ((n << 1) & 0xaa)
-        return n
+    def size(self):
+        return self.ltype
 
     def shift8(self):
-        flipped = self.flip8(self.curr595)
+        flipped = bb595.flip8(self.curr595)
         self.shifter.send8(flipped)
 
     def setclrmask(self,msk,setclr):
@@ -76,12 +69,15 @@ class LCD:
         self.setclrmask(self.BACKLIGHT_MASK,not on)
         self.shift8()
 
+    def indicator(self,on):
+        self.setclrmask(self.LED_MASK, on)
+        self.shift8()
 
     def write4(self,v4):
         #print('    write4 {:x}'.format(v4))
 
         self.curr595 &= ~self.NIB_MASK 
-        self.curr595 |= (self.flip4(v4) << 4)
+        self.curr595 |= (bb595.flip4(v4) << 4)
 
         self.setclrmask(self.E_MASK,0)
         self.shift8()
@@ -130,9 +126,17 @@ class LCD:
         self._setdctrl(self.LCD_BLINKON,on)
 
     def gotoxy(self,x=0,y=0):
-        y = y % 2
-        x = x % 16
-        self.command(self.LCD_SETDDRAMADDR | (x + 0x40*y))
+        rowoffsets = []
+        if self.ltype == '20x4':
+            y = y % 4
+            x = x % 20
+            rowoffsets = [0,0x40,0 + 20, 0x40 + 20]
+        else:
+            y = y % 2
+            x = x % 16
+            rowoffsets = [0,0x40]
+
+        self.command(self.LCD_SETDDRAMADDR | (x + rowoffsets[y]))
  
     def begin(self):
         #print('begin')

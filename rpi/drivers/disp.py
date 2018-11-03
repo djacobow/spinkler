@@ -16,43 +16,62 @@ def get_ip():
         s.close()
     return IP
 
-def pad16(s,left = None):
+def padN(s, n = 16, left = None):
     if left:
-        return '{:16.16}'.format(s)
+        return ''.join(['{:',str(n),'.',str(n),'}']).format(s)
     else:
-        return '{:>16}'.format(s)
+        return ''.join(['{:>',str(n),'}']).format(s)
 
-def timestr(dt):
-    fstr = '{0:02}/{1:02} {2:02}:{3:02}'
-    tstr = fstr.format(
-        dt.month,    
-        dt.day,
-        dt.hour,
-        dt.minute)
+def timestr(dt,w):
+    if w == 20:
+        fstr = '{0:3} {1:02}/{2:02} {3:02}:{4:02}:{5:02}'
+        weekday = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][dt.weekday()]
+        fd = [ weekday, dt.month, dt.day, dt.hour, dt.minute, dt.second]
+    else:
+        fstr = 'now {0:02}/{1:02} {2:02}:{3:02}'
+        fd = [ dt.month, dt.day, dt.hour, dt.minute ]
+
+    tstr = fstr.format(*fd)
     return tstr
 
-def update_display(lcd, zinfo = None, next_ev = None):
+def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
     now = datetime.datetime.now()
+
+    lcd_size  = lcd.size()
+    lcd_width  = 20 if lcd_size == '20x4' else 16
+    lcd_height = 4  if lcd_size == '20x4' else 2
 
     lcd.gotoxy(0,0)
     if (now.second < 10):
-        lcd.pr(pad16(get_ip()))
+        lcd.pr(padN(get_ip(),lcd_width))
     else:
-        lcd.pr(pad16('now: ' + timestr(now)))
+        lcd.pr(padN(timestr(now,lcd_width),lcd_width))
 
     if zinfo is not None:
         zstr = 'Zone {} ({}s)'.format(zinfo['zones'],zinfo['remaining'])
-        lcd.gotoxy(0,1)
-        lcd.pr(pad16(zstr,True))
-    elif next_ev is not None:
-        nstr = 'nxt: ' + timestr(next_ev['start_dt'])
-        lcd.gotoxy(0,1)
-        lcd.pr(pad16(nstr))
+        lcd.gotoxy(0,2 if lcd_height == 4 else 1)
+        lcd.pr(padN(zstr,True,lcd_width))
     else:
-        lcd.pr(pad16('SPinkler!'))
+        if lcd_height == 4:
+            lcd.gotoxy(0,2)
+            lcd.pr(padN('',lcd_width))
+
+    if next_ev is not None:
+        if lcd_width == 20:
+            nstr = 'Next:'
+        else:
+            nstr = 'Nxt:'
+        nstr += ' ' + timestr(next_ev['start_dt'],16)
+
+        if lcd_height == 4 or zinfo is None:
+            lcd.gotoxy(0,1)
+            lcd.pr(padN(nstr,lcd_width))
+
+    if lcd_height == 4:
+        lcd.gotoxy(0,3)
+        lcd.pr(padN('{:20}'.format(wstr),lcd_width,True))
 
         
-
 if __name__ == '__main__':
     import bb595
     import lcd

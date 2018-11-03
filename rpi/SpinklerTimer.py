@@ -5,6 +5,7 @@ import datetime
 import time
 import json
 from drivers.disp import update_display
+import metar
 
 def toJS(x):
     return json.dumps(x,indent=2, sort_keys=True, default=repr)
@@ -27,18 +28,18 @@ class SpinklerTimer(object):
         for zone in zones:
             self.zone_bitmap |= 0x1 << (zone-1)
         if self.valves:
-            valves.set(self.zone_bitmap)
+            self.valves.set(self.zone_bitmap)
         print('zone_start() : {:x}'.format(self.zone_bitmap))
     def zone_stop(self,zones):
         for zone in zones:
             self.zone_bitmap &= ~(0x1 << (zone-1))
         if self.valves:
-            valves.set(self.zone_bitmap)
+            self.valves.set(self.zone_bitmap)
         print('zone_stop() : {:x}'.format(self.zone_bitmap))
     def zone_clear(self):
         self.zone_bitmap = 0
         if self.valves:
-            valves.set(self.zone_bitmap)
+            self.valves.set(self.zone_bitmap)
         print('zone_clear()')
 
     def check_for_new(self,now):
@@ -127,12 +128,15 @@ class SpinklerTimer(object):
         print('run()')
         self.keep_running = True
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
-        checkdelta = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
+        self.last_weather_check = datetime.datetime.fromtimestamp(0)
+        cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
+        weather_check_interval = datetime.timedelta(seconds=self.config.get('weather_check_interval',60))
 
         while self.keep_running:
             now = datetime.datetime.utcnow()
+            self.lcd.indicator(self.watering);
             if self.watering:
-                if now > (self.last_cal_check + checkdelta):
+                if now > (self.last_cal_check + cal_check_interval):
                     ev_still_exists = self.cal.check_exists(self.running_ev['id'])
                     self.last_cal_check = now
                     if not ev_still_exists:
@@ -144,8 +148,11 @@ class SpinklerTimer(object):
                 if now > self.next_ev['start_dt']:
                     self.init_watering(now)
 
-            if now > (self.last_cal_check + checkdelta):
+            if now > (self.last_cal_check + cal_check_interval):
                 self.check_for_new(now)
+
+            if now > (self.last_weather_check + weather_check_interval):
+                self.last_weather = metar.get(self.config['weather'])
 
             if self.lcd is not None:
                 zinfo = None
@@ -159,7 +166,7 @@ class SpinklerTimer(object):
                         zstr  = ','.join([str(z) for z in zones])
                         zinfo = {'zones':zstr,'remaining':trem}
                         
-                update_display(self.lcd, zinfo, self.next_ev)
+                update_display(self.lcd, zinfo, self.next_ev, self.last_weather)
 
 
             time.sleep(self.config.get('tick_interval',1))
