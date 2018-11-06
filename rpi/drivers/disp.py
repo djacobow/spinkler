@@ -28,7 +28,7 @@ def timestr(dt,w):
         weekday = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][dt.weekday()]
         fd = [ weekday, dt.month, dt.day, dt.hour, dt.minute, dt.second]
     else:
-        fstr = 'now {0:02}/{1:02} {2:02}:{3:02}'
+        fstr = '{0:02}/{1:02} {2:02}:{3:02}'
         fd = [ dt.month, dt.day, dt.hour, dt.minute ]
 
     tstr = fstr.format(*fd)
@@ -50,17 +50,16 @@ def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
     if zinfo is not None:
         zstr = 'Zone {} ({}s)'.format(zinfo['zones'],zinfo['remaining'])
         lcd.gotoxy(0,2 if lcd_height == 4 else 1)
-        lcd.pr(padN(zstr,True,lcd_width))
+        lcd.pr(padN(zstr,lcd_width,True))
     else:
         if lcd_height == 4:
             lcd.gotoxy(0,2)
             lcd.pr(padN('',lcd_width))
 
     if next_ev is not None:
+        nstr = 'Nxt:'
         if lcd_width == 20:
             nstr = 'Next:'
-        else:
-            nstr = 'Nxt:'
         nstr += ' ' + timestr(next_ev['start_dt'],16)
 
         if lcd_height == 4 or zinfo is None:
