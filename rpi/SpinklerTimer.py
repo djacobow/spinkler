@@ -118,7 +118,7 @@ class SpinklerTimer(object):
             else:
                 self.complete_watering(now)
 
-    def check_ev_exists(self):
+    def check_ev_exists(self,now):
         ev_still_exists = self.cal.check_exists(self.running_ev['id'])
         self.last_cal_check = now
         print('check_ev_exists()',ev_still_exists)
@@ -150,6 +150,7 @@ class SpinklerTimer(object):
 
             if now > (self.last_cal_check + cal_check_interval):
                 self.check_for_new(now)
+            # print('last_cal_check',self.last_cal_check)
 
             if now > (self.last_weather_check + weather_check_interval):
                 self.last_weather = metar.get(self.config['weather'])

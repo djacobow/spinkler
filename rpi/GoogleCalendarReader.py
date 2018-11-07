@@ -131,9 +131,12 @@ class GoogleCalendarReader(object):
 
     def get_next_event(self):
         now = datetime.datetime.utcnow()
+        nowp24 = now + datetime.timedelta(hours=24)
         nowstr = self.gapi_toisodate(now)
+        nowp24str = self.gapi_toisodate(nowp24)
+
         events = self._calservice.events().list(calendarId=self._config['sprinkler_calendar'],
-                timeMin=nowstr,timeZone='UTC',maxResults=10,singleEvents=True,).execute()
+                timeMin=nowstr,timeMax=nowp24str,timeZone='UTC',maxResults=10,singleEvents=True,).execute()
 
         # print('QUERY')
         # self.debugEVs(events['items'])

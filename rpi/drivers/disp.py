@@ -66,7 +66,7 @@ def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
             lcd.gotoxy(0,1)
             lcd.pr(padN(nstr,lcd_width))
 
-    if lcd_height == 4:
+    if wstr and lcd_height == 4:
         lcd.gotoxy(0,3)
         lcd.pr(padN('{:20}'.format(wstr),lcd_width,True))
 
