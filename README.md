@@ -6,31 +6,27 @@ like it, but this one is mine. The name is a mashup of "sprinkler" and "pi."
 
 ## Hardware
 
-The hardware for the SPinkler is not much different from the Open
-Sprinkler project. Then again, just about any IoT sprinkler system is 
-going to look very similar.
+The hardware for the SPinkler is not a whole lot different from the
+Open Sprinkler Project or really any triac sprinkler board for that
+matter. The difference here is really form factor and an LCD display.
 
-In my case, I wanted the design to work with a Pi Zero attached by the
-DIP header. The header is on the Spinkler board, and the pins are on the
-*back* of a Raspberry Pi Zero. The Pi sends commands to the board by
-shifting bits into one of two 74HC595 shifter register on the board. One
-drives the LCD display, the other drives an array of triacs.
+Only a few GPIO pins on the RPi are used. They drive an 74HC595 shift
+register to control the triacs and another 595 to drive the LCD display.
+
+The Pi Zero attached via a 2x20 header. I put the socket on the
+SPinkler board and solder header pins to the *back* of a RPi Zero.
+You could do it the other way around, I suppose.
 
 Like almost all sprinklers, a 24VAC transformer provides power.
 5V comes from the venerable MC34061 switching regulator, which feeds 
 The Pi Zero by means of the GPIO socket.
 
-The Pi then provides serial data clocked into one of two 74HC595 shift
-registers. One of those shift registers drives a 16x2 LCD and the other
-drives a set of 8 triacs.
-
-A simple driver for a 16x2 LCD display allows HD44780 commands over
+A simple driver for a 20x4 LCD display allows HD44780 commands over
 the serial line.
 
-That and some connectors and fuses are pretty much all she wrote. 
-I decided to use automotive ATO style fuses, and there are separate 
-ones for the power supply and logic and for the sprinkler heads 
-themselves.
+That and some connectors and a fuse are pretty much all she wrote. 
+I decided to use automotive ATO style fuse bcause I prefer them
+over bus types. They're easier to pull and read.
 
 ## Software
 
@@ -40,20 +36,24 @@ Lots of sprinkler projects do clever stuff like adjust to the weather,
 either by Internet feed or by rain sensor. Most include a phone app
 to allow real-time control of your sprinklers.
 
-I decided to eschew all that and keep things very simple, though of 
-course you can build whatever you want on top of this.
+I might get around to some or all of that, but the main feature I 
+wanted to implement was setting your watering schedule by means of 
+a Google Calendar. Google allows an individual accout to have
+multiple calendars, so I just created one for my watering. This
+Pi then just reads that schedule and waters accordingly. This is
+clean and simple and allows me to edit my watering using any of 
+the interfaces to Google Calendar (phone, web, etc) without having
+to write (or use) a special app.
 
-What I have done is build a simple scheduler that pulls its data
-from Google Calendar. You create a special calendar in your Google 
-Account and give the Spinkler access. It then waters according to
-events on that calendar.
+Google, of course, will know your sprinkler schedule, but nobody 
+else will. This is IoT how I like it -- no middle men collecting 
+my data.
 
-The nice thing about using Google Calendar is that I do not need a 
-special phone app, and can set up any kind of arbitrary repeating 
-calendar event I like, and I can do it from any device without installing
-any software. Google, of course, will know your sprinkler schedule,
-but nobody else will. This is IoT how I like it -- no middle men 
-collecting my data.
+I have not done anything yet regarding adjusting to weather, but 
+I have started to pull in local METAR data from the nearby airport.
+In theory, I could incorporate this into whether or not to carry
+out the pre-programmed schedule normally.
+
 
 ### Libraries
 
@@ -78,7 +78,7 @@ happy to take pull requests.
 
 ### Hardware Setup
 
-1. obtain a 16x2 LCD and solder a 16-pin 0.1" header to the 
+1. obtain a 20x4 LCD and solder a 16-pin 0.1" header to the 
    back of it so that the pins point backwards
 
 2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
@@ -87,25 +87,47 @@ happy to take pull requests.
 3. Attach the LCD and Pi Zero the main board. You can use
    mounting hardware to secure them. The holes should line up
 
-4. insert fuses into the fuse holder. 1A for the left and 2A 
-   for the right would be ideal
+4. insert a fuse into the fuse holder. 1A or 2A should be fine
 
 5. Get a 24 VAC plug pack (perhaps from your old controller) and
    attach the wires to the 24VAC AC1 and AC0 terminals of the board
 
+
+
 ### Software Setup
 
-1. Install an OS on your Raspberry Pi Zero. I like Raspbian Lite because
-   I won't be using the gui and why bring in more software than you need?
+This assumes basic familiarity with the Raspberry Pi.
 
-2. Install Python3 if it is not already on there:
+1. Install an OS on your Raspberry Pi Zero.
+
+   I like Raspbian Lite because it brings in no gui or other
+   cruft which is not helpful for this project and just increases
+   the size of the install and of updates.
+
+   While setting it up, you will probably find it convenient to 
+   power it up on its own (not on the SPinkler board) with a monitor
+   and keyboard attached. I usually do this long enough to enable 
+   ssh and set the WiFi password, and then from there on out I 
+   connect to it from another computer via ssh.
+
+2. Some prelimiary setup:
+
+   * change your password
+
+   * use `raspi-config` to enable ssh so you can log in remotely
+
+   * set your WiFi credentials (`/etc/wpa_supplicant/wpa_suplicant.conf`)
+  
+ 
+3. Install Python3 if it is not already on there:
 
    ```sh
    sudo apt install python3
    ```
 
-   Also, install a few packages. You can do some of these with pip,
-   but I prefer to get them from the apt repos when I can.
+   Also, install a few packages. You can get these from pip3 but I
+   prefer to get the OS packages when they exist. That way they
+   get picked up with OS updates.
 
    ```sh
    sudo apt install \
@@ -114,7 +136,7 @@ happy to take pull requests.
        python3-googleapiclient
    ```
 
-3. Create a working directory for this project and clone the code to it:
+4. Create a working directory for this project and clone the code to it:
 
    ```sh
    cd ~
@@ -122,7 +144,7 @@ happy to take pull requests.
    cd spinkler
    ```
 
-3. Create a Google Project
+5. Create a Google Project
 
    The code to run the calendar is going to run under a Google Project
    that *you* control rather than me. You will need to create a project,
@@ -147,7 +169,7 @@ happy to take pull requests.
    identifies the app and lets the app *request* credentials to see your 
    Google Account account.
 
-4. Run the script `list_cals.py`
+6. Run the script `list_cals.py`
 
    When you do, you will be presented with an URL. Copy and paste this to your
    browser, log in, and then copy and paste the resulting token back into
@@ -168,7 +190,7 @@ happy to take pull requests.
    and paste it into spinkler.py in the config section under the key
    `"sprinkler_calendar"`.
 
-5. Create your sprinkling schdule
+7. Create your sprinkling schdule
 
 It's easy to add a watering to your schedule. Just create an event
 in the calendar the Spinkler can see (the one you just edited into
@@ -188,9 +210,11 @@ each lien starts with "run" then the zone number to run, then the
 duration to run in either hours (fractions allowed) or hours:minutes
 
 You can create as many events as you like, they can repeat, run only on 
-weekdays, etc, whatever you want.
+weekdays, etc, whatever you want. You can put more than one zone 
+in a Calendar event, or you can make a separate Calendar event for 
+each zone you'd like to run.
 
-6. Run the spinkler program:
+8. Run the spinkler program:
 
 Just run:
 
@@ -228,6 +252,7 @@ Dave J (djacobow)
 
 #### Date
 
+Updated Novemver 2018
 Started October 2018
 
 
