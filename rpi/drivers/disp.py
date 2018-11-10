@@ -3,6 +3,35 @@
 import datetime
 import time
 import socket
+from dateutil import tz
+
+class RotatingString:
+    def __init__(self,ins = '', maxw = 0):
+        self.iter = 0
+        self.maxw = maxw
+        self.s = ins
+    def set(self,s):
+        self.s = s
+        self.iter = 0
+        return self._rot()
+
+    def _rot(self):
+        c = self.iter % len(self.s)
+        if not c:
+            return self.s
+
+        l = self.s[c:]
+        r = self.s[0:c-1]
+        rotated = l + r
+        if self.maxw:
+            return rotated[0:self.maxw-1]
+        else:
+            return rotated
+    def tick(self):
+        rv = self._rot()
+        self.iter += 1
+        return rv
+
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -22,6 +51,11 @@ def padN(s, n = 16, left = None):
     else:
         return ''.join(['{:>',str(n),'}']).format(s)
 
+def zuluToSystem(ind):
+    utc = ind.replace(tzinfo=tz.tzutc())
+    loc = utc.astimezone(tz.tzlocal())
+    return loc
+    
 def timestr(dt,w):
     if w == 20:
         fstr = '{0:3} {1:02}/{2:02} {3:02}:{4:02}:{5:02}'
@@ -60,7 +94,7 @@ def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
         nstr = 'Nxt:'
         if lcd_width == 20:
             nstr = 'Next:'
-        nstr += ' ' + timestr(next_ev['start_dt'],16)
+        nstr += ' ' + timestr(zuluToSystem(next_ev['start_dt']),16)
 
         if lcd_height == 4 or zinfo is None:
             lcd.gotoxy(0,1)
@@ -72,21 +106,28 @@ def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
 
         
 if __name__ == '__main__':
-    import bb595
-    import lcd
-    import random
-    s8 = bb595.bb595()
-    lcd = lcd.LCD(s8)
-    lcd.begin()
-    lcd.clear()
-    lcd.backlight(0)
-    last = datetime.datetime.now()
 
-    while True:
-        now = datetime.datetime.now()
-        if now > (last + datetime.timedelta(seconds=1)):
-            update_display(lcd,{'zones':'3', 'remaining':4922},None)
-            last = now
-        else:
-            s8.send8(random.randrange(256),'triacs')
+    s = 'This is a very long string that must be rotated'
+    r = RotatingString(s,16)
+    for i in range(50):
+        print(r.tick())
+
+    if False:
+        import bb595
+        import lcd
+        import random
+        s8 = bb595.bb595()
+        lcd = lcd.LCD(s8)
+        lcd.begin()
+        lcd.clear()
+        lcd.backlight(0)
+        last = datetime.datetime.now()
+
+        while True:
+            now = datetime.datetime.now()
+            if now > (last + datetime.timedelta(seconds=1)):
+                update_display(lcd,{'zones':'3', 'remaining':4922},None)
+                last = now
+            else:
+                s8.send8(random.randrange(256),'triacs')
   

@@ -5,6 +5,7 @@ import datetime
 import time
 import json
 from drivers.disp import update_display
+from drivers.disp import RotatingString
 import metar
 
 def toJS(x):
@@ -128,6 +129,7 @@ class SpinklerTimer(object):
         print('run()')
         self.keep_running = True
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
+        self.last_weather = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
         self.last_weather_check = datetime.datetime.fromtimestamp(0)
         cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
         weather_check_interval = datetime.timedelta(seconds=self.config.get('weather_check_interval',60))
@@ -153,7 +155,8 @@ class SpinklerTimer(object):
             # print('last_cal_check',self.last_cal_check)
 
             if now > (self.last_weather_check + weather_check_interval):
-                self.last_weather = metar.get(self.config['weather'])
+                self.last_weather_check = now
+                self.last_weather.set(metar.get(self.config['weather']))
 
             if self.lcd is not None:
                 zinfo = None
@@ -167,7 +170,7 @@ class SpinklerTimer(object):
                         zstr  = ','.join([str(z) for z in zones])
                         zinfo = {'zones':zstr,'remaining':trem}
                         
-                update_display(self.lcd, zinfo, self.next_ev, self.last_weather)
+                update_display(self.lcd, zinfo, self.next_ev, self.last_weather.tick())
 
 
             time.sleep(self.config.get('tick_interval',1))

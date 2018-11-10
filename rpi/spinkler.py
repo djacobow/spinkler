@@ -18,10 +18,10 @@ config = {
     },
     'sprinkler_calendar': 'd5mhbl6ei4jt4a37iirhoa3ajg@group.calendar.google.com',
     'zone_count': 8,
-    'cal_check_interval': 15,
-    'weather_check_interval': 60,
+    'cal_check_interval': 60,
+    'weather_check_interval': 600,
     'pause_time': 2,
-    'tick_interval': 1,
+    'tick_interval': 0.5,
     'weather': {
         'url': 'https://www.aviationweather.gov/adds/dataserver_current/httpparam',
         'args': {
