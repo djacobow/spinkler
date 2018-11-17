@@ -3,16 +3,18 @@
 import os
 import datetime
 import re
+import base64
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 from dateutil.parser import parse as parsedate
+from email.mime.text import MIMEText
 
-class GoogleCalendarReader(object):
-    _config = None
+
+class Authinator(object):
     def __init__(self, config):
         self._last_cred_refresh = 0
-        self._calservice = None
+        self._services = {}
         self._credentials = None
         self._config = config
 
@@ -32,13 +34,13 @@ class GoogleCalendarReader(object):
 
         flags = MyFlags()
 
-        credential_dir = self._config['google']['credentials_dir']
+        credential_dir = self._config['credentials_dir']
         if not re.match(r'^/', credential_dir):
             credential_dir = path.join(os.getcwd(), credential_dir)
 
         if not os.path.exists(credential_dir):
             os.makedirs(credential_dir)
-        credential_file_name = self._config['google']['credentials_file']
+        credential_file_name = self._config['credentials_file']
         credential_path = os.path.join(credential_dir, credential_file_name)
 
         store = file.Storage(credential_path)
@@ -46,8 +48,8 @@ class GoogleCalendarReader(object):
 
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(
-                self._config['google']['client_secrets'],
-                self._config['google']['scopes'])
+                self._config['client_secrets'],
+                self._config['scopes'])
             flow.user_agent = 'Sprinkler Calendar Checker'
             if flags:
                 credentials = tools.run_flow(flow, store, flags)
@@ -63,30 +65,45 @@ class GoogleCalendarReader(object):
         """refresh googld credentials"""
         now = helpers.get_now()
         if (now > (self._last_cred_refresh +
-                   self._config['google']['refresh_period'])):
+                   self._config['refresh_period'])):
             print('refreshing Google credentials')
             self.get_credentials(self._config)
             self._last_cred_refresh = datetime.datetime.now()
 
-    def get_service(self):
-        if self._calservice:
-            return self._calservice
+    def get_service(self,what = 'calendar'):
+        if self._services.get(what,None):
+            return self._services[what]
 
         if self._credentials:
-            self._calservice = build('calendar','v3',
+            versions = {
+                'calendar': 'v3',
+                'gmail': 'v1',
+            }
+            self._services[what] = build(what,versions.get(what,None),
                 http=self._credentials.authorize(http=Http()),
                 cache_discovery=False)
         else:
             print('-error- no google credentials')
-        return self._calservice
+            return None
+        return self._services[what]
+
+
+
+
+class CalendarReader(object):
+    _config = None
+    def __init__(self, config, authinator):
+        self._config = config
+        self._gauth = authinator
+
 
     def get_calendars(self):
         page_token = None
         olist = []
-        if self._calservice:
+        if self._gauth.get_service('calendar'):
             done = False
             while not done:
-                page_list = self._calservice.calendarList().list(pageToken=page_token).execute()
+                page_list = self._gauth.get_service('calendar').calendarList().list(pageToken=page_token).execute()
                 olist += page_list['items']
                 page_token = page_list.get('nextPageToken')
                 if not page_token:
@@ -104,6 +121,8 @@ class GoogleCalendarReader(object):
         for cal in cals:
             print(f.format(cal['summary'],cal['id']))
 
+
+
     def gapi_toisodate(self,d):
         return d.isoformat() + 'Z'
     
@@ -111,7 +130,7 @@ class GoogleCalendarReader(object):
         return parsedate(ds).replace(tzinfo=None)
 
     def check_exists(self,evid):
-        ev = self._calservice.events().get(calendarId=self._config['sprinkler_calendar'], eventId=evid).execute()
+        ev = self._gauth.get_service('calendar').events().get(calendarId=self._config['sprinkler_calendar'], eventId=evid).execute()
         if not ev:
             return False
         elif ev['status'] != 'confirmed':
@@ -135,7 +154,7 @@ class GoogleCalendarReader(object):
         nowstr = self.gapi_toisodate(now)
         nowp24str = self.gapi_toisodate(nowp24)
 
-        events = self._calservice.events().list(calendarId=self._config['sprinkler_calendar'],
+        events = self._gauth.get_service('calendar').events().list(calendarId=self._config['sprinkler_calendar'],
                 timeMin=nowstr,timeMax=nowp24str,timeZone='UTC',maxResults=10,singleEvents=True,).execute()
 
         # print('QUERY')
@@ -192,4 +211,39 @@ class GoogleCalendarReader(object):
 
 
 
+class Mailer(object):
+    def __init__(self, config, authinator):
+        self._config = config
+        self._gauth = authinator
 
+    def send(self, subject, text):
+        mcfg = self._config.get('mail')
+        if not mcfg:
+            print('Not configured to send mail.')
+            return
+        try:
+            gm = self._gauth.get_service('gmail');
+
+            m = MIMEText(text)
+
+            # m['from'] = mcfg.get('from','nobody@nowhere.net')
+            tolist = mcfg.get('to',[])
+            m['to']   = ','.join(tolist)
+            m['subject'] = subject
+
+            b64_bytes = base64.urlsafe_b64encode(m.as_bytes())
+            b64_str   = b64_bytes.decode()
+            body = {'raw': b64_str}
+
+            dr = gm.users().drafts().create(userId='me',body={'message': body}).execute()
+            print('draft',dr)
+
+
+            if dr and dr.get('id',None):
+                res = gm.users().drafts().send(userId='me', body={'id':dr['id']}).execute()
+                print('res',res)
+                return res 
+
+        except Exception as e:
+            print('An Error occured',e)
+            return None

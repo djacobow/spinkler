@@ -12,9 +12,10 @@ def toJS(x):
     return json.dumps(x,indent=2, sort_keys=True, default=repr)
 
 class SpinklerTimer(object):
-    def __init__(self, config, calendar, valves=None, lcd=None):
+    def __init__(self, config, calendar, mailer, valves=None, lcd=None):
         self.config = config
         self.cal = calendar
+        self.mailer = mailer
         self.valves = valves
         self.lcd = lcd
         self.next_ev = None
@@ -74,6 +75,7 @@ class SpinklerTimer(object):
         print('complete_watering()')
         self.zone_clear()
         self.results.append({'ev':self.running_ev, 'steps': self.steps})
+        self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
         print('watering_results',toJS(self.results))
         self.running_ev = None
         self.steps = None
