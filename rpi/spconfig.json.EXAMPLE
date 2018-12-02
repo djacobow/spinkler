@@ -17,6 +17,11 @@
     "weather_check_interval": 600,
     "pause_time": 2,
     "tick_interval": 0.5,
+    "psr": {
+        "zone": 1,
+        "predelay": 2,
+        "postdelay": 2
+    },
     "weather": {
         "url": "https://www.aviationweather.gov/adds/dataserver_current/httpparam",
         "args": {
