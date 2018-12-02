@@ -19,14 +19,41 @@ def _fetch(cfg):
 def jss(x):
     return json.dumps(x,indent=2,sort_keys=True)
 
+class Metar:
+    def __init__(self,data):
+        self.data = data 
+    def text(self):
+        return self.data['raw_text']
+    def _get_var(self,vn,number = True):
+        t = self.data.get(vn,None)
+        if t and number:
+            t = float(t)
+        return t
+    def temp(self):
+        return self._get_var('temp_c')
+    def rain_inches(self):
+        return self._get_var('rain_in')
+    def wx(self):
+        return self._get_var('wx_string',False)
+    def freezing(self):
+        t = self.temp()
+        if t is not None:
+            return t <= 0
+        return False
+    def raining(self):
+        wx = self.wx()
+        if wx is not None:
+            m = re.search(r'RA',wx)
+            if m:
+                return True
+        return False
+
 def get(cfg):
     data = _fetch(cfg)
     if data and data.get('response',None) and data['response'].get('data',None) and data['response']['data'].get('METAR',None):
 
-        m = {
-            'text': data['response']['data']['METAR']['raw_text']
-        }
-        return m
+        metar = data['response']['data']['METAR']
+        return Metar(metar)
 
 
 if __name__ == '__main__':
@@ -38,7 +65,7 @@ if __name__ == '__main__':
             'format': 'xml',
             'hoursBeforeNow':1,
             'mostRecent':'true',
-            'stationString':'KOAK',
+            'stationString':'KMBS',
         }
     }
 

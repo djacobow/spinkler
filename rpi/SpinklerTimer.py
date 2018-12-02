@@ -85,6 +85,21 @@ class SpinklerTimer(object):
         self.watering = False
 
 
+    def skip_watering(self,now,skip_reason):
+        print('skip_watering()')
+        self.results = []
+        skipped_ev = self.next_ev
+        self.next_ev = None
+
+        self.steps = {
+            'to_do': [],
+            'in_progress': None,
+            'skipped': self.cal.parse_event(skipped_ev),
+            'skip_reason': skip_reason,
+        }
+
+        self.watering = True
+
     def init_watering(self,now):
         print('init_watering()')
         self.results = []
@@ -141,11 +156,28 @@ class SpinklerTimer(object):
         print('check_ev_exists()',ev_still_exists)
         return ev_still_exists
 
+    def should_skip(self):
+
+        metar = self.last_weather
+
+        if metar:
+            if metar.freezing():
+                return { 'reason': "freezing"}
+            if metar.raining():
+                return { 'reason': 'raining', 'inches': metar.rain_inches() }
+            if self.config.get('min_watering_temp',None):
+                if metar.temp() < self.config['min_watering_temp']:
+                    return { 'reason': 'too cold',
+                             'temp': metar.temp(),
+                             'min_temp': self.config['min_watering_temp'] }
+        return None
+
+
     def run(self):
         print('run()')
         self.keep_running = True
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
-        self.last_weather = {}
+        self.last_weather = None 
         self.last_weather_str = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
         self.last_weather_check = datetime.datetime.fromtimestamp(0)
         cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
@@ -165,7 +197,11 @@ class SpinklerTimer(object):
             elif self.next_ev:
                 # print('now',now,'next_ev',self.next_ev['start_dt'])
                 if now > self.next_ev['start_dt']:
-                    self.init_watering(now)
+                    skip_reason = self.should_skip()
+                    if skip_reason:
+                        self.skip_watering(now, skip_reason)
+                    else:
+                        self.init_watering(now)
 
             if now > (self.last_cal_check + cal_check_interval):
                 self.check_for_new(now)
@@ -174,7 +210,7 @@ class SpinklerTimer(object):
             if now > (self.last_weather_check + weather_check_interval):
                 self.last_weather_check = now
                 self.last_weather = metar.get(self.config['weather'])
-                self.last_weather_str.set(self.last_weather['text'])
+                self.last_weather_str.set(self.last_weather.text())
 
             if self.lcd is not None:
                 zinfo = None
