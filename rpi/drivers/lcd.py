@@ -52,6 +52,15 @@ class LCD:
         self.dctrl         = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
         self.curr595       = 0
 
+    def __del__(self):
+        try:
+            self.clear()
+            self.gotoxy(0,0)
+            self.pr('Goodbye')
+        except Exception as e:
+            self.gotoxy(0,1)
+            self.pr(repr(e))
+
     def size(self):
         return self.ltype
 
@@ -165,7 +174,6 @@ class LCD:
             chv = ord(ch)
             self.write(chv)
     
-
 
 if __name__ == '__main__':
     import datetime

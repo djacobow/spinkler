@@ -14,6 +14,13 @@ class Triacs(object):
             ch = bb595.flip8(chunk)
             self.sh8.send8(ch & 0xff, 'triacs')
 
+    def __del__(self):
+        try:
+            for i in range(4):
+                self.sh8.send8(0)
+        except Exception as e:
+            print("could not turn off triacs because " + repr(e))
+
     def enable(self,en):
         self.sh8.triac_en(en)
 
