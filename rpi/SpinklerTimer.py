@@ -25,6 +25,7 @@ class SpinklerTimer(object):
         self.steps = None
         self.results = [] 
         self.zone_bitmap = 0
+        self.psr_running = None
     
     def zone_start(self,zones):
         for zone in zones:
@@ -74,6 +75,8 @@ class SpinklerTimer(object):
     def complete_watering(self,now):
         print('complete_watering()')
         self.zone_clear()
+        self.psr_running = None
+        self.steps['done'].append({'all_stop': now})
         self.results.append({'ev':self.running_ev, 'steps': self.steps})
         self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
         print('watering_results',toJS(self.results))
@@ -84,6 +87,7 @@ class SpinklerTimer(object):
 
     def init_watering(self,now):
         print('init_watering()')
+        self.results = []
         self.running_ev = self.next_ev
         self.next_ev = None
         self.steps = {
@@ -92,6 +96,16 @@ class SpinklerTimer(object):
             'in_progress': None
         }
         print('self.steps',toJS(self.steps))
+
+
+        psr_cfg = self.config.get('psr',None)
+        if psr_cfg:
+            psr_zone = psr_cfg.get('zone',None)
+            if psr_zone:
+                self.zone_start([psr_zone])
+                self.psr_running = psr_zone
+                self.steps['done'].append({'psr_started': now, 'zone':psr_zone})
+
         self.watering = True
 
     def watering_tick(self,now):
@@ -131,7 +145,8 @@ class SpinklerTimer(object):
         print('run()')
         self.keep_running = True
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
-        self.last_weather = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
+        self.last_weather = {}
+        self.last_weather_str = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
         self.last_weather_check = datetime.datetime.fromtimestamp(0)
         cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
         weather_check_interval = datetime.timedelta(seconds=self.config.get('weather_check_interval',60))
@@ -158,7 +173,8 @@ class SpinklerTimer(object):
 
             if now > (self.last_weather_check + weather_check_interval):
                 self.last_weather_check = now
-                self.last_weather.set(metar.get(self.config['weather']))
+                self.last_weather = metar.get(self.config['weather'])
+                self.last_weather_str.set(self.last_weather['text'])
 
             if self.lcd is not None:
                 zinfo = None
@@ -170,9 +186,9 @@ class SpinklerTimer(object):
                     if zones and len(zones):
                         trem  = cstep.get('seconds_remaining','???')
                         zstr  = ','.join([str(z) for z in zones])
-                        zinfo = {'zones':zstr,'remaining':trem}
+                        zinfo = {'zones':zstr,'remaining':trem,'psr_running':self.psr_running}
                         
-                update_display(self.lcd, zinfo, self.next_ev, self.last_weather.tick())
+                update_display(self.lcd, zinfo, self.next_ev, self.last_weather_str.tick())
 
 
             time.sleep(self.config.get('tick_interval',1))

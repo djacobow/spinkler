@@ -82,7 +82,7 @@ def update_display(lcd, zinfo = None, next_ev = None, wstr = None):
         lcd.pr(padN(timestr(now,lcd_width),lcd_width))
 
     if zinfo is not None:
-        zstr = 'Zone {} ({}s)'.format(zinfo['zones'],zinfo['remaining'])
+        zstr = 'Zone {} ({}s) {}'.format(zinfo['zones'],zinfo['remaining'],'P' if zinfo['psr_running'] else '')
         lcd.gotoxy(0,2 if lcd_height == 4 else 1)
         lcd.pr(padN(zstr,lcd_width,True))
     else:

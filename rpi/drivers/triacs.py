@@ -7,9 +7,13 @@ class Triacs(object):
         self.sh8 = shifter
 
     def set(self,v):
-        # zones are reverse order of byte
-        v = bb595.flip8(v)
-        self.sh8.send8(v & 0xff, 'triacs')
+        chunks = [ (v >> 8) & 0xff, v & 0xff ]
+
+        for chunk in chunks:
+            # zones are reverse order of byte
+            ch = bb595.flip8(chunk)
+            self.sh8.send8(ch & 0xff, 'triacs')
+
     def enable(self,en):
         self.sh8.triac_en(en)
 

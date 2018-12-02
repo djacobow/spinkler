@@ -23,7 +23,9 @@ def get(cfg):
     data = _fetch(cfg)
     if data and data.get('response',None) and data['response'].get('data',None) and data['response']['data'].get('METAR',None):
 
-        m = data['response']['data']['METAR']['raw_text']
+        m = {
+            'text': data['response']['data']['METAR']['raw_text']
+        }
         return m
 
 
