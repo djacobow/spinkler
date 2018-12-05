@@ -28,7 +28,12 @@ class RotatingString:
         else:
             return rotated
     def tick(self):
-        rv = self._rot()
+        rv = None
+        if self.iter % 2:
+            rv = self._rot()
+        else:
+            rv = self.s
+
         self.iter += 1
         return rv
 
