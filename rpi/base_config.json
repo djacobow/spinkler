@@ -12,16 +12,16 @@
         },
         "scopes": [
             "https://www.googleapis.com/auth/calendar.readonly",
-		    "https://www.googleapis.com/auth/gmail.compose",
+            "https://www.googleapis.com/auth/gmail.compose",
             "profile","email"
         ]
 
     },
     "user_config_fn": "./user_config.json",
-    "sprinkler_calendar": "d5mhbl6ei4jt4a37iirhoa3ajg@group.calendar.google.com",
+    "sprinkler_calendar": "some_calendar@calendar.google.com",
     "mail": {
-        "send": true,
-        "to": [ "david.jacobowitz@gmail.com" ]
+        "send": false,
+        "to": [ "nobody@nowhere.net" ]
     },
     "zone_count": 8,
     "cal_check_interval": 60,
