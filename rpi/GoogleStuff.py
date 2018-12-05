@@ -56,9 +56,10 @@ class Authinator(object):
         try:
             store = file.Storage(self.cred_path())
             credentials = store.get()
-            self._credentials = credentials
         except Exception as e:
-            pass
+            print('exception: {}'.format(repr(e)))
+
+        self._credentials = credentials
         return credentials
 
     def get_credentials_by_console(self):
@@ -187,7 +188,11 @@ class CalendarReader(object):
         nowstr = self.gapi_toisodate(now)
         nowp24str = self.gapi_toisodate(nowp24)
 
-        events = self._gauth.get_service('calendar').events().list(calendarId=self._config['sprinkler_calendar'],
+        calservice = self._gauth.get_service('calendar')
+        if not calservice:
+            return None
+
+        events = calservice.events().list(calendarId=self._config['sprinkler_calendar'],
                 timeMin=nowstr,timeMax=nowp24str,timeZone='UTC',maxResults=10,singleEvents=True,).execute()
 
         # print('QUERY')
