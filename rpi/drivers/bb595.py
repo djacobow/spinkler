@@ -1,4 +1,10 @@
-import RPi.GPIO as GPIO
+
+real_gpio = False
+try:
+    import RPi.GPIO as GPIO
+    real_gpio = True
+except Exception as e:
+    from drivers import dummy_gpio as GPIO
 
 def flip8(b):
     b = ((b >> 4) & 0x0f) | ((b << 4) & 0xf0)

@@ -6,6 +6,8 @@ After=network.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/projects/spinkler/rpi
+ExecStart=/usr/local/bin/gunicorn -b 0.0.0.0:5000 --pid=app.pid web_spinkler:spinkler_app --log-level DEBUG
+
 ExecStart=/home/pi/projects/spinkler/rpi/spinkler.py
 Restart=on-failure
 # Other Restart options: or always, on-abort, etc

@@ -114,7 +114,7 @@ class SpinklerTimer(object):
 
 
         psr_cfg = self.config.get('psr',None)
-        if psr_cfg:
+        if psr_cfg and psr_cfg.get('enabled',False):
             psr_zone = psr_cfg.get('zone',None)
             if psr_zone:
                 self.zone_start([psr_zone])

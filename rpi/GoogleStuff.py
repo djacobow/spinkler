@@ -4,6 +4,7 @@ import os
 import datetime
 import re
 import base64
+import json
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
@@ -12,21 +13,61 @@ from email.mime.text import MIMEText
 
 
 class Authinator(object):
+
+
     def __init__(self, config):
         self._last_cred_refresh = 0
         self._services = {}
         self._credentials = None
         self._config = config
 
+    def cred_path(self):
+        credential_dir = self._config['credentials_dir']
+        if not re.match(r'^/', credential_dir):
+            credential_dir = os.path.join(os.path.expanduser('~'), credential_dir)
+
+        if not os.path.exists(credential_dir):
+            os.makedirs(credential_dir)
+        credential_file_name = self._config['credentials_file']
+        credential_path = os.path.join(credential_dir, credential_file_name)
+        return credential_path
+
+    def store_credentials_from_web(self, auth_code):
+
+        credentials = client.credentials_from_clientsecrets_and_code(
+            self._config['client_secrets'],
+            self._config['scopes'],
+            auth_code)
+
+        store = file.Storage(self.cred_path())
+
+        with open(self.cred_path(),'w') as ofh:
+            ofh.write(credentials.to_json())
+        self._credentials = credentials
+
+
     def get_credentials(self):
         if self._credentials and not self._credentials.invalid:
             return self._credentials
+        return None
+
+    def load_credentials_from_disk(self):
+        credentials = None
+        try:
+            store = file.Storage(self.cred_path())
+            credentials = store.get()
+            self._credentials = credentials
+        except Exception as e:
+            pass
+        return credentials
+
+    def get_credentials_by_console(self):
 
         credentials = None
 
         class MyFlags(object):
             logging_level = 'WARNING'
-            noauth_local_webserver = True
+            noauth_local_webserver = True 
             auth_host_port = [8080,8090]
             auth_host_name = 'localhost'
             def __init__(self):
@@ -34,16 +75,7 @@ class Authinator(object):
 
         flags = MyFlags()
 
-        credential_dir = self._config['credentials_dir']
-        if not re.match(r'^/', credential_dir):
-            credential_dir = path.join(os.getcwd(), credential_dir)
-
-        if not os.path.exists(credential_dir):
-            os.makedirs(credential_dir)
-        credential_file_name = self._config['credentials_file']
-        credential_path = os.path.join(credential_dir, credential_file_name)
-
-        store = file.Storage(credential_path)
+        store = file.Storage(self.cred_path())
         credentials = store.get()
 
         if not credentials or credentials.invalid:
@@ -55,7 +87,7 @@ class Authinator(object):
                 credentials = tools.run_flow(flow, store, flags)
             else:  # Needed only for compatibility with Python 2.6
                 credentials = tools.run_flow(flow, store)
-            print('Storing credentials to: ' + credential_path)
+            print('Storing credentials to: ' + self.cred_path())
 
         self._last_cred_refresh = datetime.datetime.now()
         self._credentials = credentials
@@ -82,6 +114,7 @@ class Authinator(object):
             self._services[what] = build(what,versions.get(what,None),
                 http=self._credentials.authorize(http=Http()),
                 cache_discovery=False)
+            print('created service')
         else:
             print('-error- no google credentials')
             return None
@@ -218,7 +251,7 @@ class Mailer(object):
 
     def send(self, subject, text):
         mcfg = self._config.get('mail')
-        if not mcfg:
+        if not mcfg or not mcfg.get('send',false):
             print('Not configured to send mail.')
             return
         try:
@@ -228,6 +261,8 @@ class Mailer(object):
 
             # m['from'] = mcfg.get('from','nobody@nowhere.net')
             tolist = mcfg.get('to',[])
+            if isinstance(tolist, str):
+                to = [ to ]
             m['to']   = ','.join(tolist)
             m['subject'] = subject
 

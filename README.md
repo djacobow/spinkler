@@ -69,6 +69,10 @@ I provide simple libraries to:
 
 The main app just uses those to run a schedule.
 
+The main app also runs a simple web server, which you can use 
+to set up your Google credentials and adjust a few other basic
+parameters.
+
 You can use as little or as much of this as you like, and I'll be 
 happy to take pull requests.
 
@@ -133,7 +137,11 @@ This assumes basic familiarity with the Raspberry Pi.
    sudo apt install \
        python3-rpi.gpio \
        python3-dateutil \
-       python3-googleapiclient
+       python3-googleapiclient \
+       python3-oauth2client \
+       python3-flask \
+       python3-gunicorn \
+       python3-xmltodict
    ```
 
 4. Create a working directory for this project and clone the code to it:
@@ -160,37 +168,42 @@ This assumes basic familiarity with the Raspberry Pi.
    * Click on API's and services, search for Calendar API and click to 
      enable it. 
    * generate credentials. You can use the help walkthrough to figure out 
-     what you will need, but basically you want a client_id. Tell it that 
-     you will be accessing user data from a CLI UI.
+     what you will need, but basically you want a client_id for a Web
+     Server.
    * download the credential you just made and save it in the folder your
-     just created with your git pull as `spinkler_client_secrets.json`.
+     just created with your git pull as `web_client_secrets.json`.
 
    This credential does not give access to your Google Account. It 
    identifies the app and lets the app *request* credentials to see your 
    Google Account account.
 
-6. Run the script `list_cals.py`
+6. If you have not yet created a Google Calendar for your SPinkler, do
+   so now.  Open Google Calendar in a browser, and click the plus sign 
+   next to "Add a friend's calendar", then click "New Calendar" 
+   and give it a name, etc.
 
-   When you do, you will be presented with an URL. Copy and paste this to your
-   browser, log in, and then copy and paste the resulting token back into
-   your text window.
+7. If you are still ssh'd into your Pi, get the IP address using 
+   `ifconfig`. 
 
-   Once you have done that, `list_cals.py` will show a list of calendars that
-   your account can see. You can use one of these for your sprinklers, but 
-   I suggest instead you creat a calendar just for the purpose.
 
-   Open Google Calendar in a browser, and click the plus sign next to "Add
-   a friend's calendar", then click "New Calendar" and give it a name, etc.
+8. Start the program server:
+
+   `gunicorn -b 0.0.0.0:5000 --pid=app.pid web_spinkler:spinkler_app`
+
+9.  If it starts without errors, use your browser to open
+    `http://<ip_address>/login`.
+
+   Click 'login' to log into your Google account. Grant the requested
+   permissions.
+
+   If you log in successfully, you will be taken to a configuration
+   screen where you can choose what calendar the tool should use.
 
    If you've created a new calendar, run the list_cals script again. You'll
    notice it only asks for your login once. After that, it will remember by
    storing a token in `~/.spinkler`.
 
-   Anyway, copy the calendar ID associated with the calendar you want to use
-   and paste it into spinkler.py in the config section under the key
-   `"sprinkler_calendar"`.
-
-7. Create your sprinkling schdule
+10. Create your sprinkling schdule
 
 It's easy to add a watering to your schedule. Just create an event
 in the calendar the Spinkler can see (the one you just edited into
@@ -214,20 +227,13 @@ weekdays, etc, whatever you want. You can put more than one zone
 in a Calendar event, or you can make a separate Calendar event for 
 each zone you'd like to run.
 
-8. Run the spinkler program:
+11. Make the spinkler program a daemon.
 
-Just run:
+If the spinkler program appear to be running/working, convert it
+into a background process that will auto-restart if something fails.
+First, use ctrl-c to exit the instance you have running.
 
-```
-./spinkler.py
-```
-
-and you should be off to the races.
-
-You can run it now to see if it works. Once you have it working 
-properly, you can set it up to run as a service so that it starts
-automatically at boot and will be restarted automatically if it crashes for
-some reasons
+Then, issue these commands to "daemonize" your program:
 
 ```sh
 cp spinkler.service /etc/systemd/system
@@ -243,7 +249,6 @@ sudo journalctl -f -u spinkler
 ```
 
 
-
 That's about all there is to it. Good luck!
 
 #### Author
@@ -252,7 +257,7 @@ Dave J (djacobow)
 
 #### Date
 
-Updated Novemver 2018
+Updated December 2018
 Started October 2018
 
 

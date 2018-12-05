@@ -1,0 +1,126 @@
+{
+    "google": {
+        "refresh_period": 3600,                                                 
+        "credentials_file": "creds.json",                          
+        "credentials_dir": ".spinkler",
+        "client_secrets": "web_client_secrets.json",                                
+        "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly",
+		    "https://www.googleapis.com/auth/gmail.compose",
+            "profile","email"
+        ]
+
+    },
+    "user_config_fn": "./user_config.json",
+    "sprinkler_calendar": "d5mhbl6ei4jt4a37iirhoa3ajg@group.calendar.google.com",
+    "mail": {
+        "send": true,
+        "to": [ "david.jacobowitz@gmail.com" ]
+    },
+    "zone_count": 8,
+    "cal_check_interval": 60,
+    "weather_check_interval": 600,
+    "pause_time": 2,
+    "tick_interval": 0.5,
+    "psr": {
+        "enabled": true,
+        "zone": 1
+    },
+    "weather": {
+        "url": "https://www.aviationweather.gov/adds/dataserver_current/httpparam",
+        "args": {
+            "dataSource": "metars",
+            "requestType": "retrieve",
+            "format": "xml",
+            "hoursBeforeNow":1,
+            "mostRecent":"true",
+            "stationString":"KOAK"
+        }
+    },
+    "config_ui_changeables": [
+        {
+            "type": "heading",
+            "descr": "Calendar settings"
+        },
+        {
+            "path": "sprinkler_calendar",
+            "descr": "calendar to use",
+            "type": "calendar_selector"
+        },
+        {
+            "path": "cal_check_interval",
+            "descr": "Delay in seconds betweeen calendar checks",
+            "type": "integer",
+            "min": 60,
+            "max": 1800
+        },
+        {
+            "type": "rule"
+        },
+        {
+            "type": "heading",
+            "descr": "Mail settings"
+        },
+        {
+            "path": "mail/send",
+            "descr": "send email after each watering",
+            "type": "bool"
+        },
+        {
+            "path": "mail/to",
+            "descr": "email address to receive results"
+        },
+        {
+            "type": "rule"
+        },
+        {
+            "type": "heading",
+            "descr": "PSR Settings"
+        },
+        {
+            "path": "psr/enabled",
+            "descr": "Use a pump start relay",
+            "type": "bool"
+        },
+        {
+            "path": "psr/zone",
+            "descr": "Zone to use for PSR",
+            "type": "integer",
+            "max": 16,
+            "min": 1
+        },
+        {
+            "type": "rule"
+        },
+        {
+            "type": "heading",
+            "descr": "Weather Settings"
+        },
+        {
+            "path": "weather/args/stationString",
+            "descr": "Airport ID to use for METAR",
+            "type": "string"
+        },
+        {
+            "path": "weather_check_interval",
+            "descr": "How often to check weather",
+            "type": "integer",
+            "min": 300,
+            "max": 3600
+        },
+        {
+            "type": "rule"
+        },
+        {
+            "type": "heading",
+            "descr": "General"
+        },
+        {
+            "path": "pause_time",
+            "descr": "Delay in seconds betweeen zones",
+            "type": "integer",
+            "min": 0,
+            "max": 120
+        }
+    ]
+}
