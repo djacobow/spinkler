@@ -77,7 +77,7 @@ class SpinklerTimer(object):
         self.zone_clear()
         self.psr_running = None
         self.steps['done'].append({'all_stop': now})
-        self.results.append({'ev':self.running_ev, 'steps': self.steps})
+        self.results.append({'ev':self.running_ev, 'steps': self.steps, 'uname':os.uname()})
         self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
         print('watering_results',toJS(self.results))
         self.running_ev = None

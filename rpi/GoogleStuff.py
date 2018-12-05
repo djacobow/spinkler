@@ -265,7 +265,7 @@ class Mailer(object):
 
     def send(self, subject, text):
         mcfg = self._config.get('mail')
-        if not mcfg or not mcfg.get('send',false):
+        if not mcfg or not mcfg.get('send',False):
             print('Not configured to send mail.')
             return
         try:
@@ -273,10 +273,9 @@ class Mailer(object):
 
             m = MIMEText(text)
 
-            # m['from'] = mcfg.get('from','nobody@nowhere.net')
             tolist = mcfg.get('to',[])
             if isinstance(tolist, str):
-                to = [ to ]
+                tolist = [ tolist ]
             m['to']   = ','.join(tolist)
             m['subject'] = subject
 
