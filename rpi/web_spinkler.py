@@ -168,8 +168,8 @@ def create_spinkler_app():
     valves.enable(True)
     valves.set(0);
 
-    if False:
-        spr = SpinklerTimer.SpinklerTimer(cm.get_config(),cal,mailer,valves,disp)
+    if True:
+        spr = SpinklerTimer.SpinklerTimer(cm.getConfig(),cal,mailer,valves,disp)
         bgThread = threading.Thread(target=spr.run)
         bgThread.start()
 
