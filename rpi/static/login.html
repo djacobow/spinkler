@@ -56,6 +56,7 @@ function signInCallback(authResult) {
       data: authResult['code']
     });
   } else {
+    console.log(authResult);
     // There was an error.
   }
 };
