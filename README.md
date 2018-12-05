@@ -122,6 +122,9 @@ This assumes basic familiarity with the Raspberry Pi.
 
    * set your WiFi credentials (`/etc/wpa_supplicant/wpa_suplicant.conf`)
   
+   * name the machine something like "spinkler.local" so that 
+     avahi/mDNS can broadcast a real name. This is important, as 
+     Google with not auth against an IP address
  
 3. Install Python3 if it is not already on there:
 
@@ -167,9 +170,31 @@ This assumes basic familiarity with the Raspberry Pi.
      really matter
    * Click on API's and services, search for Calendar API and click to 
      enable it. 
-   * generate credentials. You can use the help walkthrough to figure out 
-     what you will need, but basically you want a client_id for a Web
-     Server.
+   * generate credentials. Google's credentials system is pretty
+     confusing, and they do not make it easy to host a web server
+     locally on a private network and use Google services.
+
+     You will have to specify your machine name (spinkler.local)
+     or whatever you have named is in a few places:
+
+         - on the oauth consent screen tab, add some 
+           public website as an authorized domain. You won't be
+           logging in from this domain, but Google insists on 
+           being able to redirect you to somehwere afer login,
+           and that somehwere needs to be a public address
+
+     Then, under the credentials tab, edit the credential for
+     your web app and:
+ 
+         - under "authorized Javascript origins", add:
+           `localhost:5000` and 
+           `spinkler.local:5000`
+
+         - under "authorized redirect URIs."
+           This must be a complete url in the site you 
+           listed above. It can literally be any page.
+
+
    * download the credential you just made and save it in the folder your
      just created with your git pull as `web_client_secrets.json`.
 
