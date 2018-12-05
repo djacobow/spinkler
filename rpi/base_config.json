@@ -1,9 +1,15 @@
 {
     "google": {
         "refresh_period": 3600,                                                 
-        "credentials_file": "creds.json",                          
+        "credentials_file": {
+            "web": "web_creds.json",
+            "console": "console_creds.json"
+        },
         "credentials_dir": ".spinkler",
-        "client_secrets": "web_client_secrets.json",                                
+        "client_secret": {
+            "web": "web_client_secret.json",                                
+            "console": "console_client_secret.json"
+        },
         "scopes": [
             "https://www.googleapis.com/auth/calendar.readonly",
 		    "https://www.googleapis.com/auth/gmail.compose",

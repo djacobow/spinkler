@@ -15,11 +15,12 @@ from email.mime.text import MIMEText
 class Authinator(object):
 
 
-    def __init__(self, config):
+    def __init__(self, config, server_type =  'web'):
         self._last_cred_refresh = 0
         self._services = {}
         self._credentials = None
         self._config = config
+        self._server_type = server_type
 
     def cred_path(self):
         credential_dir = self._config['credentials_dir']
@@ -28,14 +29,14 @@ class Authinator(object):
 
         if not os.path.exists(credential_dir):
             os.makedirs(credential_dir)
-        credential_file_name = self._config['credentials_file']
+        credential_file_name = self._config['credentials_file'][self._server_type]
         credential_path = os.path.join(credential_dir, credential_file_name)
         return credential_path
 
     def store_credentials_from_web(self, auth_code):
 
         credentials = client.credentials_from_clientsecrets_and_code(
-            self._config['client_secrets'],
+            self._config['client_secret']['web'],
             self._config['scopes'],
             auth_code)
 
@@ -49,6 +50,14 @@ class Authinator(object):
     def get_credentials(self):
         if self._credentials and not self._credentials.invalid:
             return self._credentials
+
+        self.load_credentials_from_disk()
+
+        if self._credentials and not self._credentials.invalid:
+            return self._credentials
+
+        if self._server_type == 'console':
+            return self.get_credentials_by_console()
         return None
 
     def load_credentials_from_disk(self):
@@ -81,7 +90,7 @@ class Authinator(object):
 
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(
-                self._config['client_secrets'],
+                self._config['client_secret']['console'],
                 self._config['scopes'])
             flow.user_agent = 'Sprinkler Calendar Checker'
             if flags:
