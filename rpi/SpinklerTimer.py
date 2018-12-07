@@ -173,6 +173,8 @@ class SpinklerTimer(object):
         return None
 
 
+    def stop(self):
+        self.keep_running = False
     def run(self):
         print('run()')
         self.keep_running = True
@@ -184,49 +186,55 @@ class SpinklerTimer(object):
         weather_check_interval = datetime.timedelta(seconds=self.config.get('weather_check_interval',60))
 
         while self.keep_running:
-            now = datetime.datetime.utcnow()
-            self.lcd.indicator(self.watering);
-            if self.watering:
-                if now > (self.last_cal_check + cal_check_interval):
-                    ev_still_exists = self.cal.check_exists(self.running_ev['id'])
-                    self.last_cal_check = now
-                    if not ev_still_exists:
-                        self.cancel_watering(now)
-                else:
-                    self.watering_tick(now)
-            elif self.next_ev:
-                # print('now',now,'next_ev',self.next_ev['start_dt'])
-                if now > self.next_ev['start_dt']:
-                    skip_reason = self.should_skip()
-                    if skip_reason:
-                        self.skip_watering(now, skip_reason)
+            try:
+                now = datetime.datetime.utcnow()
+                self.lcd.indicator(self.watering);
+                if self.watering:
+                    if now > (self.last_cal_check + cal_check_interval):
+                        ev_still_exists = self.cal.check_exists(self.running_ev['id'])
+                        self.last_cal_check = now
+                        if not ev_still_exists:
+                            self.cancel_watering(now)
                     else:
-                        self.init_watering(now)
+                        self.watering_tick(now)
+                elif self.next_ev:
+                    # print('now',now,'next_ev',self.next_ev['start_dt'])
+                    if now > self.next_ev['start_dt']:
+                        skip_reason = self.should_skip()
+                        if skip_reason:
+                            self.skip_watering(now, skip_reason)
+                        else:
+                            self.init_watering(now)
 
-            if now > (self.last_cal_check + cal_check_interval):
-                self.check_for_new(now)
-            # print('last_cal_check',self.last_cal_check)
+                if now > (self.last_cal_check + cal_check_interval):
+                    self.check_for_new(now)
+                # print('last_cal_check',self.last_cal_check)
 
-            if now > (self.last_weather_check + weather_check_interval):
-                self.last_weather_check = now
-                self.last_weather = metar.get(self.config['weather'])
-                self.last_weather_str.set(self.last_weather.text())
+                if now > (self.last_weather_check + weather_check_interval):
+                    self.last_weather_check = now
+                    self.last_weather = metar.get(self.config['weather'])
+                    if self.last_weather:
+                        self.last_weather_str.set(self.last_weather.text())
 
-            if self.lcd is not None:
-                zinfo = None
-                cstep = None
-                if self.steps is not None:
-                    cstep = self.steps.get('in_progress',None)
-                if cstep:
-                    zones = cstep['zones']
-                    if zones and len(zones):
-                        trem  = cstep.get('seconds_remaining','???')
-                        zstr  = ','.join([str(z) for z in zones])
-                        zinfo = {'zones':zstr,'remaining':trem,'psr_running':self.psr_running}
+                if self.lcd is not None:
+                    zinfo = None
+                    cstep = None
+                    if self.steps is not None:
+                        cstep = self.steps.get('in_progress',None)
+                    if cstep:
+                        zones = cstep['zones']
+                        if zones and len(zones):
+                            trem  = cstep.get('seconds_remaining','???')
+                            zstr  = ','.join([str(z) for z in zones])
+                            zinfo = {'zones':zstr,'remaining':trem,'psr_running':self.psr_running}
                         
-                update_display(self.lcd, zinfo, self.next_ev, self.last_weather_str.tick())
+                    update_display(self.lcd, zinfo, self.next_ev, self.last_weather_str.tick())
+            except Exception as e:
+                print('Exception!')
+                print(e)
 
 
             time.sleep(self.config.get('tick_interval',1))
+
 
     

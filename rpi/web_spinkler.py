@@ -28,10 +28,6 @@ def create_spinkler_app():
     mailer = GoogleStuff.Mailer(cm.getConfig(), ga)
     app = Flask(__name__)
 
-    def interrupt():
-        global bgThread
-        bgThread.cancel()
-
     @app.route('/static/<fname>', methods=['GET'])
     def sendStatic(fname):
         print('sendStatic fname',fname)
@@ -98,13 +94,17 @@ def create_spinkler_app():
     valves.enable(True)
     valves.set(0);
 
-    if True:
-        spr = SpinklerTimer.SpinklerTimer(cm.getConfig(),cal,mailer,valves,disp)
-        bgThread = threading.Thread(target=spr.run)
-        bgThread.start()
+    spr = SpinklerTimer.SpinklerTimer(cm.getConfig(),cal,mailer,valves,disp)
+
+    def interrupt():
+        spr.stop()
+
+    bgThread = threading.Thread(target=spr.run)
+    bgThread.start()
 
     # When you kill Flask (SIGTERM), clear the trigger for the next thread
     atexit.register(interrupt)
     return app
+
 
 spinkler_app = create_spinkler_app()
