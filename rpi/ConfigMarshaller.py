@@ -70,3 +70,7 @@ class ConfigMarshaller(object):
 
 
 
+if __name__ == '__main__':
+    cm = ConfigMarshaller('./base_config.json')
+    cm.saveConfig()
+
