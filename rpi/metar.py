@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 import xmltodict
 import json
+import re
 
 def _fetch(cfg):
     try:
