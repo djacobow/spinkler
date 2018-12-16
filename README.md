@@ -3,25 +3,28 @@
 
 The "SPinkler" is a Raspberry Pi based sprinkler controller. 
 Other projects, such as "Open Sprinkler" are very similar. However,
-I didn't like the Open Sprinkler Project's Raspberry Pi based 
-srpinkler controller. I wanted a different form factor, and a 
-display, and I wanted to do it mysef.
+I didn't like the Open Sprinkler Project's Pi-based controller. 
+I wanted a different form factor, 16 zones in one unit, and 
+a display.
+
+And I wanted to do it myself.
 
 As a result this project is similar, but not identicaly to 
 Open Sprinkler.
 
 ## Who would want to use this?
 
-There are a bunch of IOT irrigation controllers on the market,
-some with some pretty slick software. If you want open 
-source, then you can avail yourself of the "Open Sprinkler
-Project" which has an EPA Water Sense evapotranspiration model
-and a nice phone app.
+There are so many IOT irrigation controllers on the market,
+you definitely do not need to go to an open source project.
 
-But if you just want something simple, something you can control
-directly yourself, and write your own scheduling algorithm for,
-you might like this project. I think my hardware and software 
-are both straightforward.
+However, if:
+
+* you like to hack
+* you're just curious
+* you are protective of your privacy
+* just like simple things that you can manage yourself
+
+... then you might be interested in this project.
 
 The demo app I provide is the one I use to water my garden. It
 simply accesses a Google Calendar to know when to water. I don't
@@ -37,34 +40,35 @@ interest.
 ### Philosophy
 
 Lots of sprinkler projects do clever stuff like run evapotranspiration
-models to adjust to the weather and provide a nice phone app that 
-might provide real-time control of your sprinklers.
+models to adjust to the weather and provide a nice phone app that might
+provide real-time control of your sprinklers.
 
-I wanted to instead build something that was simple to understand
-and did not involve too much extra software. I already use a 
-calendar system that works great: Google Calendar. So why not just
-create a watering calendar and have the sprinklers follow that?
+I wanted to instead build something simple, with a minimum of 
+additional software.  I already use Google Calendar, so it was an 
+easy choice to use that for watering.
 
-And that's what I've written.  I think this is
-clean and simple and allows me to edit my watering using any of 
-the interfaces to Google Calendar (phone, web, etc) without having
-to write (or use) a special app.
+And that's what I've written. I think this is
+clean and simple and allows me to edit my watering calendar 
+using any of the interfaces to Google Calendar (phone, web, etc) 
+without having to write (or use) a special app at all.
 
 Google, of course, will know your sprinkler schedule, but nobody 
-else will. This is IoT how I like it -- no middle men collecting 
-my data.
+else will. This is IoT how I like it -- no 
+(or at least, only familiar) middle men collecting my data.
 
-However, I have put in some very basic weather adapatation. The
-system will download weather from NOAA and if it is raining or 
-cold, the sprinklers won't run.
+I have put in some very basic weather adapatation just to play around. The
+system will download weather from NOAA and if it is raining or cold,
+the sprinklers won't run.
 
 
-The standard demo app needs to be configured directly by 
-modifying a config file where you point it to the specific 
-calendar you want to use, and the local weather station.
-There is also an alternative main app that hosts a little 
-web server to allow the same configuration by web browser. 
-If you'd like to use that, please read `WEB_SERVER.md`.
+The demo app needs to be configured directly by modifying a
+config file that specifies the specific calendar you want to use,
+and the local weather station.  Alternatively, you can use a 
+main app that hosts a little web server to allow the same 
+configuration details via web browser.
+
+The web server is more trouble to set up, though. If you want to,
+read `WEB_SERVER.md`.
 
 
 ### Libraries
@@ -75,9 +79,9 @@ are used.
 
 I provide simple libraries to:
 
-    * write to the display
-    * turn on triacs
-    * read from Google Calendar
+* write to the display
+* turn on triacs
+* read from Google Calendar
 
 The demo app just uses those to run a schedule.
 
@@ -94,23 +98,23 @@ and not use the demo code!
 
 ### Hardware Setup
 
-Follow the steps in the `HARDWARE.md` file, but basically:
+Follow the steps in the `HARDWARE.md` file, but in short:
 
-1. obtain a 20x4 LCD and solder a 16-pin 0.1" header to the 
-   back of it so that the pins point backwards.
+1. obtain a 20x4 LCD and solder a 16x1 0.1" header to the 
+back of it so that the pins point backwards.
 
 2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
-   and solder those pins on, also on the back
+and solder those pins on, also on the back
 
-3. Attach the LCD and Pi Zero the main board. You can use
-   mounting hardware to secure them. The holes should line up
+3. Plug in the LCD and Pi Zero the main board. You can use
+mounting hardware to secure them. The holes should line up
 
-4. insert an ATO auto fuse into the fuse holder. 1A or 2A should be fine
+4. insert an auto fuse into the fuse holder. 
 
 5. Get a 24 VAC plug pack (perhaps from your old controller) and
-   attach the wires to the 24VAC AC1 and AC0 terminals of the board
+attach the wires to the 24VAC AC1 and AC0 terminals of the board
 
-Sprinkler valves themselves will have two wires each. One 
+6. Sprinkler valves themselves will have two wires each. One 
 should be attached to the screw terminals market Z1, Z2, 
 Z3 ... Z16. The other should be grouped together and attached
 to the "common" screw terminals. For convenience, there are 
