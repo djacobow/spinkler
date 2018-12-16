@@ -12,7 +12,7 @@ The board is intended to mate with a Raspberry Pi Zero W but using
 an IDC cable you can connect it to any RPi, even the ones with only
 10x2 headers. (only pins in the first 10 columns are used).
 
-![picture of operating SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete.jpg)
+![picture of operating SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_8ch.jpg)
 
 ## Obtaining the Hardware
 
