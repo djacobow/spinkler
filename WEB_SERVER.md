@@ -6,7 +6,7 @@ python script checks Google Calendar and controls the valves/triacs
 based on a schedule.
 
 The script itself is most easily configured simply by ssh-ing into the
-host Pi and editing a JSON file. This is described in the `README.md`
+host Pi and editing a JSON file. This is described in the [README.md](README.md)
 file.
 
 However, what would be even more convenient for most users would be if 
@@ -38,7 +38,7 @@ that uses Google services. But we can work around it.
 ### Basic Setup for the Pi
 
 First, get the `noweb_spinkler.py` working as described in the main
-`README.md`. There is no sense futzing with the extra complexity of 
+[README.md](README.md). There is no sense futzing with the extra complexity of 
 the web server if you don't have the rest already working. 
 
 In addition to what's there:
@@ -67,7 +67,7 @@ For that matter, you might want to use virtualenv.
 
 
 If you set up the software according to the instructions in
-`README.md`, you already have a Google Project with Calendar
+[README.md](README.md), you already have a Google Project with Calendar
 API and Gmail API enabled. In that process, you created 
 a "client secret" file and called it `console_client_secret.json`
 

@@ -71,7 +71,7 @@ main app that hosts a little web server to allow the same
 configuration details via web browser.
 
 The web server is more trouble to set up, though. If you want to,
-read `WEB_SERVER.md`.
+read [WEB_SERVER.md](WEB_SERVER.md).
 
 
 ### Libraries
@@ -101,7 +101,7 @@ and not use the demo code!
 
 ### Hardware Setup
 
-Follow the steps in the `HARDWARE.md` file, but in short:
+Follow the steps in the [HARDWARE.md](HARDWARE.md) file, but in short:
 
 1. obtain a 20x4 LCD and solder a 16x1 0.1" header to the 
 back of it so that the pins point backwards.
