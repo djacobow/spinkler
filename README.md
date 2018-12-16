@@ -12,6 +12,9 @@ And I wanted to do it myself.
 As a result this project is similar, but not identicaly to 
 Open Sprinkler.
 
+![Operating, assembled SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_operating.jpg)
+
+
 ## Who would want to use this?
 
 There are so many IOT irrigation controllers on the market,
