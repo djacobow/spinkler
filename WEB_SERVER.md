@@ -1,21 +1,23 @@
 
 # SPinkler web server
 
-The main software code for the SPinkler project is reasonably 
-simple. A python script checks Google Calendar and controls 
-the valves/triacs based on a schedule.
+The main software code for the SPinkler project is reasonably simple. A
+python script checks Google Calendar and controls the valves/triacs
+based on a schedule.
 
-The script itself is most easily configured simply by ssh-ing into the 
+The script itself is most easily configured simply by ssh-ing into the
 host Pi and editing a JSON file. This is described in the `README.md`
 file.
 
 However, what would be even more convenient for most users would be if 
 they could configure or adjust the SPinkler software from a web page
-that the host Pi serves.
+that the host Pi serves. Well, that's convenient to use, but it's a 
+bit more effort to set up.
 
-This describes the experimental version of just that thing 
-is included in this repo.  It uses most of the same files and adds 
+This document the experimental version of a web server with 
+configuration. It uses most of the same files and adds 
 a web server layer.
+
 
 ## Google Authentication
 
@@ -30,20 +32,22 @@ server.)
 This is somewhat a problem for running a little home-based server
 that uses Google services. But we can work around it.
 
+
 ## Setup
 
 ### Basic Setup for the Pi
 
-First, get the `noweb_spinkler.py` working. There is no sense
-futzing with the extra complexity of the web server if you don't
-have the rest already working. Follow the instructions in 
-`README.md`
+First, get the `noweb_spinkler.py` working as described in the main
+`README.md`. There is no sense futzing with the extra complexity of 
+the web server if you don't have the rest already working. 
 
-In addition to that:
+In addition to what's there:
 
-1. name the machine something like "spinkler.local" so that 
-   avahi/mDNS can broadcast a real name. This is important, as 
-   Google with not auth against an IP address
+1. name the machine using rasp-config.
+   Something like "spinkler.local" so that avahi/mDNS can broadcast 
+   a real name. This is important, as Google with not auth against 
+   an IP address. On your local network you'll be able to access
+   that machine by going to http://spinkler.local, for example.
 
 2. Install some additional libraries:
 
@@ -67,7 +71,7 @@ If you set up the software according to the instructions in
 API and Gmail API enabled. In that process, you created 
 a "client secret" file and called it `console_client_secret.json`
 
-Now we will generate a new credentials for the web server.
+Now we will generate a new credential for the web server.
 
 Go to your cloud project and go to make new credentials, except
 this time, tell Google that you are making a "web app".
@@ -103,6 +107,7 @@ in `spinkler/rpi` as `web_client_secret.json`.
 This credential does not give access to your Google Account. It 
 identifies the app and lets the app *request* credentials to see your 
 Google Account account.
+
 
 ### Test the Web Server
 
