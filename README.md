@@ -346,43 +346,43 @@ This assumes basic familiarity with the Raspberry Pi.
 
 10. Once you a basic config file, start the server to test it out:
 
-   ```sh
-   ./console_spinkler.py
-   ```
+    ```sh
+    ./console_spinkler.py
+    ```
 
-   You should see the display on your SPinkler light up and show the date
-   and time, and, if you have watering events on your calendar in the next
-   24 hours, the next watering event. The weather may also scroll across 
-   the bottom line.
-
-   You may want to experiment with using your Calendar to set a watering
-   event a few minutes in the future (at least three, or else the tool
-   might not catch it before it passes) and see that it actually runs.
-
-   If so, you are good!
+    You should see the display on your SPinkler light up and show the date
+    and time, and, if you have watering events on your calendar in the next
+    24 hours, the next watering event. The weather may also scroll across 
+    the bottom line.
+ 
+    You may want to experiment with using your Calendar to set a watering
+    event a few minutes in the future (at least three, or else the tool
+    might not catch it before it passes) and see that it actually runs.
+ 
+    If so, you are good!
 
 
 11. Make the spinkler program a daemon so it starts automatically and 
-   restarts if it crashes.
+    restarts if it crashes.
 
-   If the spinkler program appear to be running/working, convert it
-   into a background process that will auto-restart if something fails.
-   First, use ctrl-c to exit the instance you have running.
+    If the spinkler program appear to be running/working, convert it
+    into a background process that will auto-restart if something fails.
+    First, use ctrl-c to exit the instance you have running.
+ 
+    Then, issue these commands to "daemonize" your program:
 
-   Then, issue these commands to "daemonize" your program:
+    ```sh
+    cp systemd/noweb_spinkler.service /etc/systemd/system
+    sudo systemctl daemon-reload
+    sudo systemctl enable noweb_spinkler
+    sudo systemclt restart noweb_spinkler
+    ```
 
-   ```sh
-   cp systemd/noweb_spinkler.service /etc/systemd/system
-   sudo systemctl daemon-reload
-   sudo systemctl enable noweb_spinkler
-   sudo systemclt restart noweb_spinkler
-   ```
-
-   You can see how spinkler is doing with:
-
-   ```sh
-   sudo journalctl -f -u noweb_spinkler
-   ```
+    You can see how spinkler is doing with:
+ 
+    ```sh
+    sudo journalctl -f -u noweb_spinkler
+    ```
 
 That's about all there is to it. Good luck!
 
