@@ -83,23 +83,24 @@ places:
 Under the credentials tab, edit the credential for your web 
 app and:
  
-    - under "authorized Javascript origins", add:
-      `localhost:5000` and 
-      `spinkler.local:5000`
+* under "authorized Javascript origins", add:
+  `localhost:5000` and 
+  `spinkler.local:5000`
 
-    - under "authorized redirect URIs." provide a 
-      URI to some web page.
+* under "authorized redirect URIs." provide a 
+  URI to some web page.
 
-      This is a bit confusing. Because your SPinkler
-      is almost certainly operating behind a NAT 
-      firewall, Google cannot access this webserver,
-      only you can at home. As a result, you will not
-      be able to provide Google with a redirect URL to 
-      your device.
+  This is a bit confusing. Because your SPinkler
+  is almost certainly operating behind a NAT 
+  firewall, Google cannot access this webserver,
+  only you can at home. As a result, you will not
+  be able to provide Google with a redirect URL to 
+  your device.
 
-      So just give it a redirect URL for any public 
-      webpage. It doesn't matter. This redirect is only
-      used after login.
+  So just give it a redirect URL for any public 
+  webpage. It doesn't matter. This redirect is only
+  used after login.
+
 
 Download the credential you just made and save it on your Pi
 in `spinkler/rpi` as `web_client_secret.json`.
