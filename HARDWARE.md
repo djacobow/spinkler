@@ -12,6 +12,19 @@ The board is intended to mate with a Raspberry Pi Zero W but using
 an IDC cable you can connect it to any RPi, even the ones with only
 10x2 headers. (only pins in the first 10 columns are used).
 
+![picture of operating SPinkler](https://raw.githubusercontent/djacobow/spinkler/hardware/images/complete.jpg)
+
+## Obtaining the Hardware
+
+This board will be available soon on Tindie in both 8-zone and
+16-zone versions. I am still finalizing a production run and pricing.
+
+If you are impatient, th schematics for this hardware are available
+in this github repo, but I will not be providing gerbers here.  If you
+would like to fab this design yourself, contact me and I will send you
+the appropriate gerbers under the promise that you will not distribute
+them or use them for commercial purposes.
+
 ## Hardware Setup
 
 ### Connect the Pi
@@ -26,16 +39,24 @@ SPinkler board and the header pins onto the underside of the Pi Zero W
 board. This way, the Pi Zero just "plugs into" the SPinkler. It's 
 simple and robust.
 
+![Expected mounting of Pi Zero W](https://raw.githubusercontent/djacobow/spinkler/hardware/images/pi_zero_mounted.jpg)
+
 However, regular Pi users may find this arrangement strange.
 Pi's have their headers on top. If yours is like
 this, and you don't want to move the header, you can still attach your
 Pi to the SPinkler board by means of an IDC cable.
 
+![Alternative Connection of Another RPi](https://raw.githubusercontent/djacobow/spinkler/hardware/images/rpi3_connected.jpg)
+
 In this case, you will want to solder header pins onto the
-SPinkler instead of a socket. Then, use a double-female 20
-pin IDC cable to mate them. Physically mounting the Pi may be 
-a bit awkward, but with mounting holes and standoff hardware,
-it is possible.
+SPinkler instead of a socket. The IDC cable does not need to be 
+a full 40-pin cable for the entire RPi header. A 20-pin
+cable and a ten-row connector are adequate. However, if you use
+a narrower cable, you may have trouble plugging it into the Pi
+because the extra pins interfere with the edge of the connector.
+
+Physically mounting the Pi may be a bit awkward, but with mounting holes
+and standoff hardware, it is possible.
 
 ### LCD
 
