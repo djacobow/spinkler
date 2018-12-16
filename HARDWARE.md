@@ -1,6 +1,6 @@
 ## Hardware Description
 
-The hardware for the SPinkler is not very from the
+The hardware for the SPinkler is not very different from the
 Open Sprinkler Project or really any triac sprinkler board for that
 matter. The difference here is really form factor and an LCD display.
 
@@ -8,43 +8,43 @@ Only a few GPIO pins on the RPi are used. They drive one or two 74HC595
 shift register to control 8 or 16 triacs, and another 595 drives
 the LCD display.
 
-The board is intended to mate with a Raspberry Pi Zero W. 
+The board is intended to mate with a Raspberry Pi Zero W but using
+an IDC cable you can connect it to any RPi, even the ones with only
+10x2 headers. (only pins in the first 10 columns are used).
 
 ## Hardware Setup
 
 ### Connect the Pi
 
-This board was intended to have a Pi Zero W ride on top of 
-the board. This is sort of like a "hat" but backwards, since 
-this board is so much larger than a Pi, it didn't make sense to 
-have it on top of the Pi.
+This board was intended to have a Pi Zero W ride on top. This is 
+the reverse of the normal "hat" setup where a board attached to 
+a Pi. Because this board is so much larger than a Pi Zero, that 
+would have been awkward.
 
-I found it most convenient to solder a socket onto the SPinkler
-board and the header pins onto the underside of the Pi Zero W
-board. This way, the Pi Zero just "plugs into" the SPinkler. It's
-very neat and robust.
+Therefore, I found it most convenient to solder a socket onto the
+SPinkler board and the header pins onto the underside of the Pi Zero W
+board. This way, the Pi Zero just "plugs into" the SPinkler. It's 
+simple and robust.
 
-However, regular Pi users may find this arrangement a little 
-uncommon. Most Pi's have their headers on top. If yours is like
-this, and you don't want to change it, you can still attach your
-Pi Zero (or any Pi for that matter) to the SPinkler board by means
-of an IDC cable.
+However, regular Pi users may find this arrangement strange.
+Pi's have their headers on top. If yours is like
+this, and you don't want to move the header, you can still attach your
+Pi to the SPinkler board by means of an IDC cable.
 
 In this case, you will want to solder header pins onto the
-SPinkler. Then, use a double-female 40 pins IDC cable to mate
-them. Physically mounting the Pi will be a bit awkward, but
-with standoffs, it should be possible to work something out.
-If using a regular sized Pi (not a zero), you may need a larger
-box.
+SPinkler instead of a socket. Then, use a double-female 20
+pin IDC cable to mate them. Physically mounting the Pi may be 
+a bit awkward, but with mounting holes and standoff hardware,
+it is possible.
 
 ### LCD
 
-This board will accomodate a 16x2 or 20x4 standard Hitach
-HD44780 LCD. The software expectes the 20x4. You may need to 
-solder a 16x1 header onto the LCD if it does not already have
-one. Then you just plug it int. Holes on the SPinkler will 
-match holes on the LCD. You can use m2.5 size standoff hardware
-to secure everything.
+This board will accommodate a 16x2 or 20x4 standard Hitachi 
+HD44780 LCD. The software expectes to see 20x4, but you can
+change it for 16x2. You may need to solder a 16x1 header 
+onto the LCD if it does not already have one. Then you just 
+plug it in. Holes on the SPinkler will match holes on the 
+LCD. You can use m2.5 size standoff hardware to secure everything.
 
 ### Power
 
@@ -53,39 +53,25 @@ likely what powered your old sprinkler controller, so you can just
 re-use that one. If you don't have one, you can get a generic 1A
 24 Vac plug pack on Digikey or Mouser.
 
-If your plug-pack has a connector on the end, cut it off and 
-separate the wires. Twise the ends, and put them into `AC_IN_1`
-and `AC_IN_0` terminal at teh bottom of the left screw terminal
-block.
+!!! DO NOT ATTACH THIS BOARD TO 120V MAINS POWER !!!
 
-### Srprinklers
+If your plug pack has a connector of any kind on the end, 
+cut it off and separate the wires. Twise the ends, and put them 
+into `AC_IN_1` and `AC_IN_0` terminal at the bottom of the 
+left screw terminal block.
 
-Each sprinkler valve will have two wires. One wire goes into 
-a scew terminal for a zone, on the board marked "Z1", "Z2", etc.
-The other wires are "common" and can all go together into the
-"common" terminal at the bottom of the scew terminal block. For
-convenient, two holes for common on each side of the board are
-provided, though they are all the same electrically.
+Make sure there is a fuse in the fuse holder. A 2A ATO "auto"
+fuse is appropriate.
 
-with the pins facing towards the back of the board. This is not
-generally how most people put header pins on a Pi, and it is not
-the way a pre-soldered Pi will come.
+### Sprinklers
 
-So, if you want to use this board, you have 
-The Pi Zero attached via a 2x20 header. I put the socket on the
-SPinkler board and solder header pins to the *back* of a RPi Zero.
-You could do it the other way around, I suppose.
+Each sprinkler valve will have two wires. One wire goes into a scew
+terminal for a zone, on the board marked "Z1", "Z2", etc.  The other
+wires are "common" and can all go together into a "common" terminal
+at the bottom of the scew terminal block. For convenience, two 
+holes commons on each side of the boaard are provided. They are all
+electrically connected.
 
-Like almost all sprinklers, a 24VAC transformer provides power.
-5V comes from the venerable MC34061 switching regulator, which feeds 
-The Pi Zero by means of the GPIO socket.
-
-A simple driver for a 20x4 LCD display allows HD44780 commands over
-the serial line.
-
-That and some connectors and a fuse are pretty much all she wrote. 
-I decided to use automotive ATO style fuse bcause I prefer them
-over bus types. They're easier to pull and read.
 
 ## Case
 
