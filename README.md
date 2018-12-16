@@ -141,6 +141,7 @@ This assumes basic familiarity with the Raspberry Pi.
    ssh and set the WiFi password, and then from there on out I 
    connect to it from another computer via ssh.
 
+
 2. Some prelimiary setup:
 
    * change your password
@@ -148,6 +149,7 @@ This assumes basic familiarity with the Raspberry Pi.
    * use `raspi-config` to enable ssh so you can log in remotely
 
    * set your WiFi credentials (`/etc/wpa_supplicant/wpa_suplicant.conf`)
+
   
 3. Install Python3 if it is not already on there:
 
@@ -177,22 +179,20 @@ This assumes basic familiarity with the Raspberry Pi.
 
 5. Create a Google Project
 
-   Google managers all developer application through an interface 
-   called the Google Cloud Console. You will be using the Cloud 
-   Console to create a project, where you will specify which 
-   API's you intend to use (Calendar and GMail) and then create a 
-   credentials which your app will then use to identify itself so 
-   that Google will let it use the APIs.
+   Google manages all developer application through an interface called
+   the Google Cloud Console. You will be using the Cloud Console to
+   create a project, where you will specify which API's you intend to use
+   (Calendar and GMail) and then create a credentials which your app will
+   then use to identify itself so that Google will let it use the APIs.
 
-   The project will belong to *you* and not *me* because the 
-   credentials generated are secret and can be used by others to 
-   pretend to be your app to access your Calendar and GMail, or 
-   even trick others into accessing theirs. So there's really no
-   why I can provide canned credentials for your use. Sorry.
+   The project will belong to *you* and not *me* because the credentials
+   generated are secret and can be used by others to pretend to be
+   your app to access your Calendar and GMail, or even trick others
+   into accessing theirs. So there's really no why I can provide canned
+   credentials for your use. Sorry.
 
-
-   Without getting too much into how this all works, these are the
-   basic steps:
+   I can't really give a complete tutorial on the Cloud Console 
+   here. The basic steps you need to take are:
 
    * Go to console.cloud.google.com and creata project by clicking on the 
      down triangle at the top and then clicking "new project"
@@ -209,168 +209,180 @@ This assumes basic familiarity with the Raspberry Pi.
      through it. Tell Google that you are making a "console application".
 
    * download the credential you just made and save it in the folder your
-     just created with your git pull as `web_client_secrets.json`.
+     just created with your git pull as `noweb_client_secret.json`.
 
    This credential does not give access to your Google Account. It 
    identifies the app and lets the app *request* credentials to see your 
    Google Account account.
+
 
 6. If you have not yet created a Google Calendar for your SPinkler, do
    so now.  Open Google Calendar in a browser, and click the plus sign 
    next to "Add a friend's calendar", then click "New Calendar" 
    and give it a name, etc.
 
+
 7. Create your sprinkling schdule
 
-It's easy to add a watering to your schedule. Just create an event
-in the calendar the Spinkler can see (the one you just edited into
-Spinkler.py) and set the title to "water". The description tells 
-what zones you want watered and how long, in this format:
+   It's easy to add a watering to your schedule. Just create an event
+   in the calendar the Spinkler can see (the one you just edited into
+   Spinkler.py) and set the title to "water". The description tells what
+   zones you want watered and how long, in this format:
 
 
-```
-run 3 duration 2
-run 4 duration 0.2
-run 5 duration 0:02
-```
+   ```
+   run 3 duration 2
+   run 4 duration 0.2
+   run 5 duration 0:02
+   ```
 
-In this case, zones 3, 4, and 5 will be run sequenually for 2 hours,
-0.2 hours (that's 12 minutes) and 2 minutes, respectively. As you see,
-each lien starts with "run" then the zone number to run, then the 
-duration to run in either hours (fractions allowed) or hours:minutes
+   In this case, zones 3, 4, and 5 will be run sequenually for 2 hours,
+   0.2 hours (that's 12 minutes) and 2 minutes, respectively. As you see,
+   each line starts with "run" then the zone number to run, then the 
+   duration to run in either hours (fractions allowed) or hours:minutes
 
-You can create as many events as you like, they can repeat, run only on 
-weekdays, etc, whatever you want. You can put more than one zone 
-in a Calendar event, or you can make a separate Calendar event for 
-each zone you'd like to run.
+   You can create as many events as you like, they can repeat, run only on 
+   weekdays, etc, whatever you want. You can put more than one zone 
+   in a Calendar event, or you can make a separate Calendar event for 
+   each zone you'd like to run.
 
-8. Find your calendar
 
-From the `spinkler/rpi` directory, run the program `list_cals.py`.
+8. Find your calendarID and make sure the app can log in to your account
 
-It will prompt you with a web url to open in a browser. Do so, 
-log in to your Google account, grant the necessary permissions.
+   From the `spinkler/rpi` directory, run the program `list_cals.py`.
 
-The web page will then show you a token: a string of goggledygook.
-Copy that over and paste back into the ssh window.
+   It will prompt you with a web url to open in a browser. Do so, 
+   log in to your Google account, grant the necessary permissions.
 
-The tool should then show you a list of your calendars. Try to 
-idendify the one you just created for watering and copy that 
-calendarId. You will use it in the next step.
+   The web page will then show you a token: a string of goggledygook.
+   Copy that over and paste back into the ssh window.
 
-9. Generate an empty configuration file:
+   The tool should then show you a list of your calendars. Try to 
+   idendify the one you just created for watering and copy that 
+   calendarId. You will use it in the next step.
 
-Now, ssh into your Pi, cd to the `spinkler/rpi` folder and  use a text 
-editor to open a file called `user_config.json` and put the following 
-contents into it:
+   Note: this program has stord a token in your home directory
+   that give it and `noweb_spinkler.py` access to your Google Account.
 
-`
-[]
-`
 
-Save that file and then run:
+9. Adjust your config file
 
-```sh
-touch user_config.json
-python3 ConfigMarshaller.py
-```
 
-That command fills out that file with the relevant parameters with defaults. It 
-will look something like:
+   In the `spinkler/rpi` folder use a text editor to open a file called 
+   `user_config.json` and put the following contents into it:
 
-```json
-[
-  {
-    "path": "sprinkler_calendar",
-    "value": "some_calendar@calendar.google.com"
-  },
-  {
-    "path": "cal_check_interval",
-    "value": 60
-  },
-  {
-    "path": "mail/send",
-    "value": false
-  },
-  {
-    "path": "mail/to",
-    "value": [
-      "nobody@nowhere.net"
-    ]
-  },
-  {
-    "path": "psr/enabled",
-    "value": true
-  },
-  {
-    "path": "psr/zone",
-    "value": 1
-  },
-  {
-    "path": "weather/args/stationString",
-    "value": "KOAK"
-  },
-  {
-    "path": "weather_check_interval",
-    "value": 600
-  },
-  {
-    "path": "pause_time",
-    "value": 2
-  }
-]
-```
+   ```json
+   []
+   ```
 
-At a minimum, you will now want to use a text editor to modify the 
-value for the `sprinkler_calendar`. What you put here is the 
-Google "Calendar ID" for the calendar that you found in the previous
-ste.
+   Save that file and then run:
 
-If you want to end emails after each watering, change the `mail/send`
-value to `true` and the `mail/to` value to your email address.
+   ```sh
+   python3 ConfigMarshaller.py
+   ```
 
-If you use a pump start relay, adjust those fields, too.
+   That command fills out that file with the relevant parameters with defaults. It 
+   will look something like:
 
-You can change `/weather/args/stationString` to ICAO four-letter identifier
-of a local airpot with weather reporting.
+   ```json
+   [
+     {
+       "path": "sprinkler_calendar",
+       "value": "some_calendar@calendar.google.com"
+     },
+     {
+       "path": "cal_check_interval",
+       "value": 60
+     },
+     {
+       "path": "mail/send",
+       "value": false
+     },
+     {
+       "path": "mail/to",
+       "value": [
+         "nobody@nowhere.net"
+       ]
+     },
+     {
+       "path": "psr/enabled",
+       "value": true
+     },
+     {
+       "path": "psr/zone",
+       "value": 1
+     },
+     {
+       "path": "weather/args/stationString",
+       "value": "KOAK"
+     },
+     {
+       "path": "weather_check_interval",
+       "value": 600
+     },
+     {
+       "path": "pause_time",
+       "value": 2
+     }
+   ]
+   ```
+
+   At a minimum, you will now want to use a text editor to modify the 
+   value for the `sprinkler_calendar`. What you put here is the 
+   Google "Calendar ID" for the calendar that you found in the previous
+   ste.
+
+   If you want to end emails after each watering, change the `mail/send`
+   value to `true` and the `mail/to` value to your email address. I like
+   this to know that the system is working and to have a record.
+
+   If you use a pump start relay, adjust those fields, too. You can set 
+   up any zone connection as your PSR connection. But, of course, be 
+   careful not to use that zone for anything else.
+
+   You can change `/weather/args/stationString` to ICAO four-letter identifier
+   of a local airport with weather reporting.
 
 
 10. Once you a basic config file, start the server to test it out:
 
-```sh
-./console_spinkler.py
-```
+   ```sh
+   ./console_spinkler.py
+   ```
 
-You should see the display on your SPinkler light up and show the date
-and time, and, if you have watering events on your calendar in the next
-24 hours, the next watering event. The weather may also scroll across 
-the bottom line.
+   You should see the display on your SPinkler light up and show the date
+   and time, and, if you have watering events on your calendar in the next
+   24 hours, the next watering event. The weather may also scroll across 
+   the bottom line.
 
-If so, you are good!
+   You may want to experiment with using your Calendar to set a watering
+   event a few minutes in the future (at least three, or else the tool
+   might not catch it before it passes) and see that it actually runs.
+
+   If so, you are good!
 
 
 11. Make the spinkler program a daemon so it starts automatically and 
-restarts if it crashes.
+   restarts if it crashes.
 
-If the spinkler program appear to be running/working, convert it
-into a background process that will auto-restart if something fails.
-First, use ctrl-c to exit the instance you have running.
+   If the spinkler program appear to be running/working, convert it
+   into a background process that will auto-restart if something fails.
+   First, use ctrl-c to exit the instance you have running.
 
-Then, issue these commands to "daemonize" your program:
+   Then, issue these commands to "daemonize" your program:
 
-```sh
-cp systemd/noweb_spinkler.service /etc/systemd/system
-sudo systemctl daemon-reload
-sudo systemctl enable noweb_spinkler
-sudo systemclt restart noweb_spinkler
-```
+   ```sh
+   cp systemd/noweb_spinkler.service /etc/systemd/system
+   sudo systemctl daemon-reload
+   sudo systemctl enable noweb_spinkler
+   sudo systemclt restart noweb_spinkler
+   ```
 
-You can see how spinkler is doing with:
+   You can see how spinkler is doing with:
 
-```
-sudo journalctl -f -u noweb_spinkler
-```
-
+   ```sh
+   sudo journalctl -f -u noweb_spinkler
+   ```
 
 That's about all there is to it. Good luck!
 
