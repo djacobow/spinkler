@@ -1,46 +1,51 @@
 
 # SPinkler 
 
-The "SPinkler" is a Raspberry Pi based sprinkler controller. There are others
-like it, but this one is mine. The name is a mashup of "sprinkler" and "pi."
+The "SPinkler" is a Raspberry Pi based sprinkler controller. 
+Other projects, such as "Open Sprinkler" are very similar. However,
+I didn't like the Open Sprinkler Project's Raspberry Pi based 
+srpinkler controller. I wanted a different form factor, and a 
+display, and I wanted to do it mysef.
 
-## Hardware
+As a result this project is similar, but not identicaly to 
+Open Sprinkler.
 
-The hardware for the SPinkler is not a whole lot different from the
-Open Sprinkler Project or really any triac sprinkler board for that
-matter. The difference here is really form factor and an LCD display.
+## Who would want to use this?
 
-Only a few GPIO pins on the RPi are used. They drive an 74HC595 shift
-register to control the triacs and another 595 to drive the LCD display.
+There are a bunch of IOT irrigation controllers on the market,
+some with some pretty slick software. If you want open 
+source, then you can avail yourself of the "Open Sprinkler
+Project" which has an EPA Water Sense evapotranspiration model
+and a nice phone app.
 
-The Pi Zero attached via a 2x20 header. I put the socket on the
-SPinkler board and solder header pins to the *back* of a RPi Zero.
-You could do it the other way around, I suppose.
+But if you just want something simple, something you can control
+directly yourself, and write your own scheduling algorithm for,
+you might like this project. I think my hardware and software 
+are both straightforward.
 
-Like almost all sprinklers, a 24VAC transformer provides power.
-5V comes from the venerable MC34061 switching regulator, which feeds 
-The Pi Zero by means of the GPIO socket.
+The demo app I provide is the one I use to water my garden. It
+simply accesses a Google Calendar to know when to water. I don't
+run a web server or a phone app or anything like that, since 
+Google already provides the tools I need to manage a calendar.
 
-A simple driver for a 20x4 LCD display allows HD44780 commands over
-the serial line.
+If this is appealing to you, then the SPinkler may be of
+interest.
 
-That and some connectors and a fuse are pretty much all she wrote. 
-I decided to use automotive ATO style fuse bcause I prefer them
-over bus types. They're easier to pull and read.
 
 ## Software
 
 ### Philosophy
 
-Lots of sprinkler projects do clever stuff like adjust to the weather,
-either by Internet feed or by rain sensor. Most include a phone app
-to allow real-time control of your sprinklers.
+Lots of sprinkler projects do clever stuff like run evapotranspiration
+models to adjust to the weather and provide a nice phone app that 
+might provide real-time control of your sprinklers.
 
-I might get around to some or all of that, but the main feature I 
-wanted to implement was setting your watering schedule by means of 
-a Google Calendar. Google allows an individual accout to have
-multiple calendars, so I just created one for my watering. This
-Pi then just reads that schedule and waters accordingly. This is
+I wanted to instead build something that was simple to understand
+and did not involve too much extra software. I already use a 
+calendar system that works great: Google Calendar. So why not just
+create a watering calendar and have the sprinklers follow that?
+
+And that's what I've written.  I think this is
 clean and simple and allows me to edit my watering using any of 
 the interfaces to Google Calendar (phone, web, etc) without having
 to write (or use) a special app.
@@ -49,10 +54,17 @@ Google, of course, will know your sprinkler schedule, but nobody
 else will. This is IoT how I like it -- no middle men collecting 
 my data.
 
-I have not done anything yet regarding adjusting to weather, but 
-I have started to pull in local METAR data from the nearby airport.
-In theory, I could incorporate this into whether or not to carry
-out the pre-programmed schedule normally.
+However, I have put in some very basic weather adapatation. The
+system will download weather from NOAA and if it is raining or 
+cold, the sprinklers won't run.
+
+
+The standard demo app needs to be configured directly by 
+modifying a config file where you point it to the specific 
+calendar you want to use, and the local weather station.
+There is also an alternative main app that hosts a little 
+web server to allow the same configuration by web browser. 
+If you'd like to use that, please read `WEB_SERVER.md`.
 
 
 ### Libraries
@@ -67,23 +79,25 @@ I provide simple libraries to:
     * turn on triacs
     * read from Google Calendar
 
-The main app just uses those to run a schedule.
-
-The main app also runs a simple web server, which you can use 
-to set up your Google credentials and adjust a few other basic
-parameters.
+The demo app just uses those to run a schedule.
 
 You can use as little or as much of this as you like, and I'll be 
 happy to take pull requests.
 
+I encourage you to experiment with just the libraries and a 
+simpe Python wrapper to get familiar with controller your 
+sprinklers. You may be inspired to write your own app entirely
+and not use the demo code!
 
 
 ## Getting Started
 
 ### Hardware Setup
 
+Follow the steps in the `HARDWARE.md` file, but basically:
+
 1. obtain a 20x4 LCD and solder a 16-pin 0.1" header to the 
-   back of it so that the pins point backwards
+   back of it so that the pins point backwards.
 
 2. obtain the 20x2 0.1" header for a Raspberry Pi Zero W
    and solder those pins on, also on the back
@@ -91,10 +105,19 @@ happy to take pull requests.
 3. Attach the LCD and Pi Zero the main board. You can use
    mounting hardware to secure them. The holes should line up
 
-4. insert a fuse into the fuse holder. 1A or 2A should be fine
+4. insert an ATO auto fuse into the fuse holder. 1A or 2A should be fine
 
 5. Get a 24 VAC plug pack (perhaps from your old controller) and
    attach the wires to the 24VAC AC1 and AC0 terminals of the board
+
+Sprinkler valves themselves will have two wires each. One 
+should be attached to the screw terminals market Z1, Z2, 
+Z3 ... Z16. The other should be grouped together and attached
+to the "common" screw terminals. For convenience, there are 
+two common terminals on each side of the unit.
+
+However, I'd wait until you have the basic sofware set up 
+and working before you go crazy with the valves.
 
 
 
@@ -122,10 +145,6 @@ This assumes basic familiarity with the Raspberry Pi.
 
    * set your WiFi credentials (`/etc/wpa_supplicant/wpa_suplicant.conf`)
   
-   * name the machine something like "spinkler.local" so that 
-     avahi/mDNS can broadcast a real name. This is important, as 
-     Google with not auth against an IP address
- 
 3. Install Python3 if it is not already on there:
 
    ```sh
@@ -142,9 +161,6 @@ This assumes basic familiarity with the Raspberry Pi.
        python3-dateutil \
        python3-googleapiclient \
        python3-oauth2client \
-       python3-flask \
-       python3-gunicorn \
-       python3-xmltodict
    ```
 
 4. Create a working directory for this project and clone the code to it:
@@ -157,43 +173,36 @@ This assumes basic familiarity with the Raspberry Pi.
 
 5. Create a Google Project
 
-   The code to run the calendar is going to run under a Google Project
-   that *you* control rather than me. You will need to create a project,
-   turn on the Calendar API, generate a credential, and download it.
+   Google managers all developer application through an interface 
+   called the Google Cloud Console. You will be using the Cloud 
+   Console to create a project, where you will specify which 
+   API's you intend to use (Calendar and GMail) and then create a 
+   credentials which your app will then use to identify itself so 
+   that Google will let it use the APIs.
+
+   The project will belong to *you* and not *me* because the 
+   credentials generated are secret and can be used by others to 
+   pretend to be your app to access your Calendar and GMail, or 
+   even trick others into accessing theirs. So there's really no
+   why I can provide canned credentials for your use. Sorry.
+
 
    Without getting too much into how this all works, these are the
    basic steps:
 
    * Go to console.cloud.google.com and creata project by clicking on the 
      down triangle at the top and then clicking "new project"
+
    * name the project and fill in whatever you want or not, it doesn't 
      really matter
+
    * Click on API's and services, search for Calendar API and click to 
-     enable it. 
+     enable it. Search for GMail API and enable that, too. (The demo
+     app uses that API to send you an email with watering results.)
+
    * generate credentials. Google's credentials system is pretty
-     confusing, and they do not make it easy to host a web server
-     locally on a private network and use Google services.
-
-     You will have to specify your machine name (spinkler.local)
-     or whatever you have named is in a few places:
-
-         - on the oauth consent screen tab, add some 
-           public website as an authorized domain. You won't be
-           logging in from this domain, but Google insists on 
-           being able to redirect you to somehwere afer login,
-           and that somehwere needs to be a public address
-
-     Then, under the credentials tab, edit the credential for
-     your web app and:
- 
-         - under "authorized Javascript origins", add:
-           `localhost:5000` and 
-           `spinkler.local:5000`
-
-         - under "authorized redirect URIs."
-           This must be a complete url in the site you 
-           listed above. It can literally be any page.
-
+     confusing, I'm afraid. There is a simple wizard to step you
+     through it. Tell Google that you are making a "console application".
 
    * download the credential you just made and save it in the folder your
      just created with your git pull as `web_client_secrets.json`.
@@ -207,28 +216,7 @@ This assumes basic familiarity with the Raspberry Pi.
    next to "Add a friend's calendar", then click "New Calendar" 
    and give it a name, etc.
 
-7. If you are still ssh'd into your Pi, get the IP address using 
-   `ifconfig`. 
-
-
-8. Start the program server:
-
-   `gunicorn -b 0.0.0.0:5000 --pid=app.pid web_spinkler:spinkler_app`
-
-9.  If it starts without errors, use your browser to open
-    `http://<ip_address>/login`.
-
-   Click 'login' to log into your Google account. Grant the requested
-   permissions.
-
-   If you log in successfully, you will be taken to a configuration
-   screen where you can choose what calendar the tool should use.
-
-   If you've created a new calendar, run the list_cals script again. You'll
-   notice it only asks for your login once. After that, it will remember by
-   storing a token in `~/.spinkler`.
-
-10. Create your sprinkling schdule
+7. Create your sprinkling schdule
 
 It's easy to add a watering to your schedule. Just create an event
 in the calendar the Spinkler can see (the one you just edited into
@@ -252,7 +240,113 @@ weekdays, etc, whatever you want. You can put more than one zone
 in a Calendar event, or you can make a separate Calendar event for 
 each zone you'd like to run.
 
-11. Make the spinkler program a daemon.
+8. Find your calendar
+
+From the `spinkler/rpi` directory, run the program `list_cals.py`.
+
+It will prompt you with a web url to open in a browser. Do so, 
+log in to your Google account, grant the necessary permissions.
+
+The web page will then show you a token: a string of goggledygook.
+Copy that over and paste back into the ssh window.
+
+The tool should then show you a list of your calendars. Try to 
+idendify the one you just created for watering and copy that 
+calendarId. You will use it in the next step.
+
+9. Generate an empty configuration file:
+
+Now, ssh into your Pi, cd to the `spinkler/rpi` folder and  use a text 
+editor to open a file called `user_config.json` and put the following 
+contents into it:
+
+`
+[]
+`
+
+Save that file and then run:
+
+```sh
+touch user_config.json
+python3 ConfigMarshaller.py
+```
+
+That command fills out that file with the relevant parameters with defaults. It 
+will look something like:
+
+```json
+[
+  {
+    "path": "sprinkler_calendar",
+    "value": "some_calendar@calendar.google.com"
+  },
+  {
+    "path": "cal_check_interval",
+    "value": 60
+  },
+  {
+    "path": "mail/send",
+    "value": false
+  },
+  {
+    "path": "mail/to",
+    "value": [
+      "nobody@nowhere.net"
+    ]
+  },
+  {
+    "path": "psr/enabled",
+    "value": true
+  },
+  {
+    "path": "psr/zone",
+    "value": 1
+  },
+  {
+    "path": "weather/args/stationString",
+    "value": "KOAK"
+  },
+  {
+    "path": "weather_check_interval",
+    "value": 600
+  },
+  {
+    "path": "pause_time",
+    "value": 2
+  }
+]
+```
+
+At a minimum, you will now want to use a text editor to modify the 
+value for the `sprinkler_calendar`. What you put here is the 
+Google "Calendar ID" for the calendar that you found in the previous
+ste.
+
+If you want to end emails after each watering, change the `mail/send`
+value to `true` and the `mail/to` value to your email address.
+
+If you use a pump start relay, adjust those fields, too.
+
+You can change `/weather/args/stationString` to ICAO four-letter identifier
+of a local airpot with weather reporting.
+
+
+10. Once you a basic config file, start the server to test it out:
+
+```sh
+./console_spinkler.py
+```
+
+You should see the display on your SPinkler light up and show the date
+and time, and, if you have watering events on your calendar in the next
+24 hours, the next watering event. The weather may also scroll across 
+the bottom line.
+
+If so, you are good!
+
+
+11. Make the spinkler program a daemon so it starts automatically and 
+restarts if it crashes.
 
 If the spinkler program appear to be running/working, convert it
 into a background process that will auto-restart if something fails.
@@ -261,16 +355,16 @@ First, use ctrl-c to exit the instance you have running.
 Then, issue these commands to "daemonize" your program:
 
 ```sh
-cp spinkler.service /etc/systemd/system
+cp systemd/noweb_spinkler.service /etc/systemd/system
 sudo systemctl daemon-reload
-sudo systemctl enable spinkler
-sudo systemclt restart spinkler
+sudo systemctl enable noweb_spinkler
+sudo systemclt restart noweb_spinkler
 ```
 
 You can see how spinkler is doing with:
 
 ```
-sudo journalctl -f -u spinkler
+sudo journalctl -f -u noweb_spinkler
 ```
 
 
