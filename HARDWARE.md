@@ -22,6 +22,7 @@ minor bodge that has already been corrected for the next version.)
 When everything is plugged in, it looks like this:
 
 ![Operating, assembled SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_operating.jpg)
+
 ## Obtaining the Hardware
 
 This board will be available soon on Tindie in both 8-zone and
