@@ -12,8 +12,16 @@ The board is intended to mate with a Raspberry Pi Zero W but using
 an IDC cable you can connect it to any RPi, even the ones with only
 10x2 headers. (only pins in the first 10 columns are used).
 
-![picture of operating SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_8ch.jpg)
+The following is a picture of the board without the Pi or LCD attached.
+This particular board is only fitted for 8 zones, but can be exanded
+to sixteen. (Also, as you can see, this pre-production board has a 
+minor bodge that has already been corrected for the next version.)
 
+![picture of Complete SPinkler without LCD and Pi](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_8ch.jpg)
+
+When everything is plugged in, it looks like this:
+
+![Operating, assembled SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete_operating.jpg)
 ## Obtaining the Hardware
 
 This board will be available soon on Tindie in both 8-zone and
