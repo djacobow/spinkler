@@ -12,7 +12,7 @@ The board is intended to mate with a Raspberry Pi Zero W but using
 an IDC cable you can connect it to any RPi, even the ones with only
 10x2 headers. (only pins in the first 10 columns are used).
 
-![picture of operating SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/hardware/images/complete.jpg)
+![picture of operating SPinkler](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/complete.jpg)
 
 ## Obtaining the Hardware
 
@@ -39,14 +39,14 @@ SPinkler board and the header pins onto the underside of the Pi Zero W
 board. This way, the Pi Zero just "plugs into" the SPinkler. It's 
 simple and robust.
 
-![Expected mounting of Pi Zero W](https://raw.githubusercontent.com/djacobow/spinkler/hardware/images/pi_zero_mounted.jpg)
+![Expected mounting of Pi Zero W](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/pi_zero_mounted.jpg)
 
 However, regular Pi users may find this arrangement strange.
 Pi's have their headers on top. If yours is like
 this, and you don't want to move the header, you can still attach your
 Pi to the SPinkler board by means of an IDC cable.
 
-![Alternative Connection of Another RPi](https://raw.githubusercontent.com/djacobow/spinkler/hardware/images/rpi3_connected.jpg)
+![Alternative Connection of Another RPi](https://raw.githubusercontent.com/djacobow/spinkler/master/hardware/images/rpi3_connected.jpg)
 
 In this case, you will want to solder header pins onto the
 SPinkler instead of a socket. The IDC cable does not need to be 
