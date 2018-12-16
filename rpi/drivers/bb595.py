@@ -32,7 +32,7 @@ class bb595:
         GPIO.setup(self.LCLK_LCD, GPIO.OUT)
         GPIO.setup(self.LCLK_TRC, GPIO.OUT)
         GPIO.setup(self.TRC_ENB,  GPIO.OUT)
-        GPIO.output(self.TRC_ENB, GPIO.LOW)
+        GPIO.output(self.TRC_ENB, GPIO.HIGH)
 
     def halfclock(self):
         # it seems that the 595 can keep up with python going
@@ -74,5 +74,5 @@ class bb595:
         GPIO.setup(self.DOUT,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.LCLK_TRC,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.LCLK_LCD,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(self.TRC_ENB,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.TRC_ENB,GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
