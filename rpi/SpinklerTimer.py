@@ -23,9 +23,10 @@ class SpinklerTimer(object):
         self.keep_running = False
         self.watering = False
         self.steps = None
-        self.results = [] 
+        self.results = {}
         self.zone_bitmap = 0
         self.psr_running = None
+        self.last_weather = None
     
     def zone_start(self,zones):
         for zone in zones:
@@ -77,7 +78,14 @@ class SpinklerTimer(object):
         self.zone_clear()
         self.psr_running = None
         self.steps['done'].append({'all_stop': now})
-        self.results.append({'ev':self.running_ev, 'steps': self.steps, 'uname':os.uname()})
+        self.results['ev'] = self.running_ev
+        self.results['steps'] = self.steps
+        self.results['uname'] = os.uname()
+        if self.last_weather:
+            rweather = self.results.get('weather',None)
+            if rweather:
+                rweather['at_end'] = self.last_weather.getAll()
+
         self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
         print('watering_results',toJS(self.results))
         self.running_ev = None
@@ -87,7 +95,11 @@ class SpinklerTimer(object):
 
     def skip_watering(self,now,skip_reason):
         print('skip_watering()')
-        self.results = []
+        self.results = {}
+        if self.last_weather:
+            self.results['weather'] = {
+                'at_skip': self.last_weather.getAll()
+            }
         skipped_ev = self.next_ev
         self.next_ev = None
 
@@ -102,7 +114,11 @@ class SpinklerTimer(object):
 
     def init_watering(self,now):
         print('init_watering()')
-        self.results = []
+        self.results = {}
+        if self.last_weather:
+            self.results['weather'] = {
+                'at_start': self.last_weather.getAll()
+            }
         self.running_ev = self.next_ev
         self.next_ev = None
         self.steps = {
@@ -232,6 +248,7 @@ class SpinklerTimer(object):
             except Exception as e:
                 print('Exception!')
                 print(e)
+                print(e.__traceback__)
 
 
             time.sleep(self.config.get('tick_interval',1))
