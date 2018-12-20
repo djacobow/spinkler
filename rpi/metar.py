@@ -48,6 +48,8 @@ class Metar:
             if m:
                 return True
         return False
+    def getAll(self):
+        return self.data if self.data else None
 
 def get(cfg):
     data = _fetch(cfg)
