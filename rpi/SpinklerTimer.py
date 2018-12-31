@@ -106,6 +106,7 @@ class SpinklerTimer(object):
         self.steps = {
             'to_do': [],
             'in_progress': None,
+            'done': [],
             'skipped': self.cal.parse_event(skipped_ev),
             'skip_reason': skip_reason,
         }
