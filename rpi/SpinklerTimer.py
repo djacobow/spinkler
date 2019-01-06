@@ -81,6 +81,9 @@ class SpinklerTimer(object):
         self.results['ev'] = self.running_ev
         self.results['steps'] = self.steps
         self.results['uname'] = os.uname()
+        if self.steps.get('skip_reason',None):
+            self.results['event_disposition'] = 'skipped'
+
         if self.last_weather:
             rweather = self.results.get('weather',None)
             if rweather:
@@ -92,43 +95,45 @@ class SpinklerTimer(object):
         self.steps = None
         self.watering = False
 
+    def pre_init_watering(self,now):
+        print('pre_init_watering')
+        self.results = {}
+        self.running_ev = self.next_ev
+        self.next_ev = None
+
+        if self.last_weather:
+            self.results['weather'] = {
+                'at_start': self.last_weather.getAll()
+            }
+
+        skip_reason = self.should_skip()
+        if skip_reason:
+            self.skip_watering(now, skip_reason)
+        else:
+            self.init_watering(now)
+
+        self.watering = True
 
     def skip_watering(self,now,skip_reason):
         print('skip_watering()')
-        self.results = {}
-        if self.last_weather:
-            self.results['weather'] = {
-                'at_skip': self.last_weather.getAll()
-            }
-        skipped_ev = self.next_ev
-        self.next_ev = None
 
         self.steps = {
             'to_do': [],
             'in_progress': None,
             'done': [],
-            'skipped': self.cal.parse_event(skipped_ev),
+            'skipped': self.cal.parse_event(self.running_ev),
             'skip_reason': skip_reason,
         }
 
-        self.watering = True
-
     def init_watering(self,now):
         print('init_watering()')
-        self.results = {}
-        if self.last_weather:
-            self.results['weather'] = {
-                'at_start': self.last_weather.getAll()
-            }
-        self.running_ev = self.next_ev
-        self.next_ev = None
+
         self.steps = {
             'to_do': self.cal.parse_event(self.running_ev),
+            'in_progress': None,
             'done': [],
-            'in_progress': None
+            'skipped': [],
         }
-        print('self.steps',toJS(self.steps))
-
 
         psr_cfg = self.config.get('psr',None)
         if psr_cfg and psr_cfg.get('enabled',False):
@@ -137,8 +142,6 @@ class SpinklerTimer(object):
                 self.zone_start([psr_zone])
                 self.psr_running = psr_zone
                 self.steps['done'].append({'psr_started': now, 'zone':psr_zone})
-
-        self.watering = True
 
     def watering_tick(self,now):
         current_step = self.steps.get('in_progress',None)
@@ -181,10 +184,12 @@ class SpinklerTimer(object):
             if metar.freezing():
                 return { 'reason': "freezing"}
             if metar.raining():
-                return { 'reason': 'raining', 'inches': metar.rain_inches() }
+                return { 'reason': 'rain', 'inches': metar.precip_inches() }
+            if metar.snowing():
+                return { 'reason': 'snow', 'inches': metar.precip_inches() }
             if self.config.get('min_watering_temp',None):
                 if metar.temp() < self.config['min_watering_temp']:
-                    return { 'reason': 'too cold',
+                    return { 'reason': 'too_cold',
                              'temp': metar.temp(),
                              'min_temp': self.config['min_watering_temp'] }
         return None
@@ -217,11 +222,7 @@ class SpinklerTimer(object):
                 elif self.next_ev:
                     # print('now',now,'next_ev',self.next_ev['start_dt'])
                     if now > self.next_ev['start_dt']:
-                        skip_reason = self.should_skip()
-                        if skip_reason:
-                            self.skip_watering(now, skip_reason)
-                        else:
-                            self.init_watering(now)
+                        self.pre_init_watering(now)
 
                 if now > (self.last_cal_check + cal_check_interval):
                     self.check_for_new(now)

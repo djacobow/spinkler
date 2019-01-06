@@ -32,8 +32,8 @@ class Metar:
         return t
     def temp(self):
         return self._get_var('temp_c')
-    def rain_inches(self):
-        return self._get_var('rain_in')
+    def precip_inches(self):
+        return self._get_var('precip_in')
     def wx(self):
         return self._get_var('wx_string',False)
     def freezing(self):
@@ -45,6 +45,12 @@ class Metar:
         wx = self.wx()
         if wx is not None:
             m = re.search(r'RA',wx)
+            if m:
+                return True
+    def snowing(self):
+        wx = self.wx()
+        if wx is not None:
+            m = re.search(r'SN',wx)
             if m:
                 return True
         return False
