@@ -22,18 +22,14 @@ class RotatingString:
 
         l = self.s[c:]
         r = self.s[0:c-1]
+
         rotated = l + r
         if self.maxw:
             return rotated[0:self.maxw-1]
         else:
             return rotated
     def tick(self):
-        rv = None
-        if self.iter % 2:
-            rv = self._rot()
-        else:
-            rv = self.s
-
+        rv = self._rot()
         self.iter += 1
         return rv
 
