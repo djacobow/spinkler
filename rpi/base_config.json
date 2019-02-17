@@ -38,8 +38,7 @@
             "dataSource": "metars",
             "requestType": "retrieve",
             "format": "xml",
-            "hoursBeforeNow":1,
-            "mostRecent":"true",
+            "hoursBeforeNow":24,
             "stationString":"KOAK"
         }
     },
