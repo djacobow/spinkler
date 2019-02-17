@@ -4,9 +4,10 @@ import time
 import random
 import json
 from drivers import bb595
+import curses
 
 class LCD:
-    def __init__(self, shifter, ltype = '16x2'):
+    def __init__(self, shifter, ltype = '16x2', use_curses = False):
         self.shifter = shifter
         self.ltype = ltype
         self.LED_MASK       = 0x01
@@ -51,6 +52,17 @@ class LCD:
         self.dfn           = (self.LCD_4BITMODE | self.LCD_2LINE | self.LCD_5X8DOTS)
         self.dctrl         = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
         self.curr595       = 0
+
+        if use_curses:
+            self.using_curses = True
+            (w,h) = ltype.split('x')
+            curses.initscr()
+            self.curses_win = curses.newwin(int(h)+2,int(w)+2,1,1)
+            self.curses_win.border()
+            self.curses_win.refresh()
+            self.curses_scr = curses.newwin(24,80,int(h)+4,0)
+        else:
+            self.using_curses = False
 
     def __del__(self):
         try:
@@ -114,11 +126,19 @@ class LCD:
         #print('clear')
         self.command(self.LCD_CLEARDISPLAY)
         time.sleep(0.003)
+        if self.using_curses:
+            self.curses_win.clear()
+            self.curses_win.border()
+            self.curses_win.refresh()
+
 
     def home(self):
         #print('home')
         self.command(self.LCD_RETURNHOME)
         time.sleep(0.002)
+        if self.using_curses:
+            self.curses_win.move(0,0)
+            self.curses_win.refresh()
 
     def _setdctrl(self,what,on):
         if on:
@@ -135,6 +155,11 @@ class LCD:
         self._setdctrl(self.LCD_BLINKON,on)
 
     def gotoxy(self,x=0,y=0):
+
+        if self.using_curses:
+            self.curses_win.move(y+1,x+1)
+            self.curses_win.refresh()
+
         rowoffsets = []
         if self.ltype == '20x4':
             y = y % 4
@@ -146,6 +171,8 @@ class LCD:
             rowoffsets = [0,0x40]
 
         self.command(self.LCD_SETDDRAMADDR | (x + rowoffsets[y]))
+
+
  
     def begin(self):
         #print('begin')
@@ -169,11 +196,27 @@ class LCD:
         self.command(self.LCD_ENTRYMODESET | self.dmode)
 
     def pr(self,s):
+        if self.using_curses:
+            try:
+                self.curses_win.addstr(s)
+            except curses.error:
+                pass
+            self.curses_win.refresh()
+
         for i in range(len(s)):
             ch = s[i]
             chv = ord(ch)
             self.write(chv)
     
+    def scrprint(self,s):
+        if self.using_curses:
+            try:
+                self.curses_scr.addstr(s)
+            except curses.error:
+                pass
+            self.curses_scr.refresh()
+        else:
+            print(s)
 
 if __name__ == '__main__':
     import datetime
