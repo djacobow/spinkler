@@ -26,7 +26,7 @@ class SpinklerTimer(object):
         self.results = {}
         self.zone_bitmap = 0
         self.psr_running = None
-        self.last_weather = None
+        self.weather = metar.Metar()
     
     def zone_start(self,zones):
         for zone in zones:
@@ -84,10 +84,10 @@ class SpinklerTimer(object):
         if self.steps.get('skip_reason',None):
             self.results['event_disposition'] = 'skipped'
 
-        if self.last_weather:
+        if self.weather:
             rweather = self.results.get('weather',None)
             if rweather:
-                rweather['at_end'] = self.last_weather.getAll()
+                rweather['at_end'] = self.weather.getAll()
 
         self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
         print('watering_results',toJS(self.results))
@@ -101,9 +101,9 @@ class SpinklerTimer(object):
         self.running_ev = self.next_ev
         self.next_ev = None
 
-        if self.last_weather:
+        if self.weather:
             self.results['weather'] = {
-                'at_start': self.last_weather.getAll()
+                'at_start': self.weather.getAll()
             }
 
         skip_reason = self.should_skip()
@@ -178,19 +178,19 @@ class SpinklerTimer(object):
 
     def should_skip(self):
 
-        metar = self.last_weather
+        w = self.weather
 
-        if metar:
-            if metar.freezing():
+        if w:
+            if w.freezing():
                 return { 'reason': "freezing"}
-            if metar.raining():
-                return { 'reason': 'rain', 'inches': metar.precip_inches() }
-            if metar.snowing():
-                return { 'reason': 'snow', 'inches': metar.precip_inches() }
+            if w.raining():
+                return { 'reason': 'rain', 'inches': w.precip_inches() }
+            if w.snowing():
+                return { 'reason': 'snow', 'inches': w.precip_inches() }
             if self.config.get('min_watering_temp',None):
-                if metar.temp() < self.config['min_watering_temp']:
+                if w.temp() < self.config['min_watering_temp']:
                     return { 'reason': 'too_cold',
-                             'temp': metar.temp(),
+                             'temp': w.temp(),
                              'min_temp': self.config['min_watering_temp'] }
         return None
 
@@ -201,7 +201,6 @@ class SpinklerTimer(object):
         print('run()')
         self.keep_running = True
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
-        self.last_weather = None 
         self.last_weather_str = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
         self.last_weather_check = datetime.datetime.fromtimestamp(0)
         cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
@@ -229,10 +228,10 @@ class SpinklerTimer(object):
                 # print('last_cal_check',self.last_cal_check)
 
                 if now > (self.last_weather_check + weather_check_interval):
-                    self.last_weather_check = now
-                    self.last_weather = metar.get(self.config['weather'])
-                    if self.last_weather:
-                        self.last_weather_str.set(self.last_weather.text())
+                    fetch_ok = self.weather.fetch(self.config['weather'])
+                    if fetch_ok:
+                        self.last_weather_check = now
+                        self.last_weather_str.set(self.weather.text())
 
                 if self.lcd is not None:
                     zinfo = None
@@ -250,7 +249,8 @@ class SpinklerTimer(object):
             except Exception as e:
                 print('Exception!')
                 print(e)
-                print(e.__traceback__)
+                import traceback
+                traveback.print_tb(e.__traceback__.print_)
 
 
             time.sleep(self.config.get('tick_interval',1))
