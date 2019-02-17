@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import platform 
 import datetime
 import time
 import json
@@ -27,7 +27,7 @@ class SpinklerTimer(object):
         self.zone_bitmap = 0
         self.psr_running = None
         self.weather = metar.Metar()
-    
+
     def zone_start(self,zones):
         for zone in zones:
             self.zone_bitmap |= 0x1 << (zone-1)
@@ -57,7 +57,7 @@ class SpinklerTimer(object):
 
         self.last_cal_check = now
         if replace:
-            print('new_next_event',toJS(ev))
+            print('new_next_event: {}'.format(toJS(ev)))
             self.next_ev = ev
             return ev
         else:
@@ -80,7 +80,7 @@ class SpinklerTimer(object):
         self.steps['done'].append({'all_stop': now})
         self.results['ev'] = self.running_ev
         self.results['steps'] = self.steps
-        self.results['uname'] = os.uname()
+        self.results['uname'] = platform.uname()
         if self.steps.get('skip_reason',None):
             self.results['event_disposition'] = 'skipped'
 
@@ -90,7 +90,7 @@ class SpinklerTimer(object):
                 rweather['at_end'] = self.weather.getAll()
 
         self.mailer.send(' '.join(['watering results',now.isoformat()]), toJS(self.results))
-        print('watering_results',toJS(self.results))
+        print('watering_results: {}'.format(toJS(self.results)))
         self.running_ev = None
         self.steps = None
         self.watering = False
@@ -173,7 +173,7 @@ class SpinklerTimer(object):
     def check_ev_exists(self,now):
         ev_still_exists = self.cal.check_exists(self.running_ev['id'])
         self.last_cal_check = now
-        print('check_ev_exists()',ev_still_exists)
+        print('check_ev_exists() {}'.format(ev_still_exists))
         return ev_still_exists
 
     def should_skip(self):
@@ -248,10 +248,9 @@ class SpinklerTimer(object):
                     update_display(self.lcd, zinfo, self.next_ev, self.last_weather_str.tick())
             except Exception as e:
                 print('Exception!')
-                print(e)
+                print(repr(e))
                 import traceback
-                traveback.print_tb(e.__traceback__.print_)
-
+                print('\n'.join(traceback.format_tb(e.__traceback__)))
 
             time.sleep(self.config.get('tick_interval',1))
 
