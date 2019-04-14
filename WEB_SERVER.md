@@ -49,20 +49,54 @@ In addition to what's there:
    an IP address. On your local network you'll be able to access
    that machine by going to http://spinkler.local, for example.
 
-2. Install some additional libraries:
+2. I generally prefer to use repo package rather than pip to install
+   python stuff, but in this case, due to some brain damage in which
+   gunicorn is set up in the repos, it is better to use virtualenv and pip.
+   So
 
-   ```sh 
-   sudo apt install \
-       python3-flask \
-       python3-gunicorn \
-       python3-xmltodict
+   ```sh
+   sudo apt install python3 python3-venv
+   cd ~
+   python3-venv venv
    ```
 
-In Raspbian, I have found that gunicorn does not install
-properly from apt, so you may want to use pip3 instead.
-For that matter, you might want to use virtualenv.
+   This creates a virtualenv environment called "venv" in your 
+   home directory.
+
+   Now, activate it:
+   ```sh
+   source ./venv/bin/activate
+   ```
+
+3. Now, install the packages we need with pip3:
+ 
+   ```sh
+   pip3 install \
+       gunicorn \
+       flask \
+       xmltodict \
+       oauth3client \
+       google-api-python-client \
+       python-dateutil \
+       RPi-GPIO
+   ```
 
 
+4. You should now have all the python stuff you need to run
+   the app, but the virtualenv python is different from the 
+   system python, and you want the latter, so remember to do
+
+   ```sh
+   source ./venv/bin/activate
+   ```
+
+   before working from the command line, or if you are going to
+   be editing startup scripts (you will), then use a path directly
+   into the virtualenv
+
+
+
+   
 ### Generate Google Credentials for a "Web App"
 
 
