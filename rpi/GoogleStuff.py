@@ -208,7 +208,7 @@ class CalendarReader(object):
         # self.debugEVs(events['items'])
 
         if events and len(events['items']):
-            events = list(filter(lambda ev: self.gapi_fromisodate(ev['start']['dateTime']).replace(tzinfo=None) >= now and re.match(r'watering',ev['summary']), events['items']))
+            events = list(filter(lambda ev: self.gapi_fromisodate(ev['start']['dateTime']).replace(tzinfo=None) >= now and re.match(r'watering',ev['summary'],flags=re.IGNORECASE), events['items']))
             print('AFTER FILTER')
             self.debugEVs(events)
             if len(events):
@@ -228,7 +228,7 @@ class CalendarReader(object):
             print('-warning- no event description')
             return None
 
-        m0 = re.finditer(r'(run((\s*\d+,?)+)\sduration (\d*[\.:]?\d+))+',ev['description'])
+        m0 = re.finditer(r'(run((\s*\d+,?)+)\sduration (\d*[\.:]?\d+))+',ev['description'],flags=re.IGNORECASE)
         steps = []
         for m in m0:
             zones = [ int(x) for x in m.group(2).strip().split() ]
