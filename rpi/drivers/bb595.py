@@ -4,6 +4,7 @@ try:
     import RPi.GPIO as GPIO
     real_gpio = True
 except Exception as e:
+    print("Using DUMMY GPIO - is RPi.GPIO installed?")
     from drivers import dummy_gpio as GPIO
 
 def flip8(b):

@@ -4,6 +4,7 @@ real_gpio = False
 try:
     import RPi.GPIO as GPIO
 except Exception as e:
+    print("Using dummy_gpio. Is RPi.GPIO installeD?")
     from drivers import dummy_gpio as GPIO
 
 class Buttons(object):
