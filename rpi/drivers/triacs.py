@@ -5,6 +5,7 @@ from drivers import bb595
 class Triacs(object):
     def __init__(self,shifter):
         self.sh8 = shifter
+        self.current = 0
 
     def set(self,v):
         chunks = [ (v >> 8) & 0xff, v & 0xff ]
@@ -13,6 +14,19 @@ class Triacs(object):
             # zones are reverse order of byte
             ch = bb595.flip8(chunk)
             self.sh8.send8(ch & 0xff, 'triacs')
+
+        self.current = v
+
+    def get(self):
+        return self.current
+
+    def setBits(self,v):
+        n = v | self.current
+        self.set(n)
+
+    def clrBits(self,v):
+        n = self.current & ~v
+        self.set(n)
 
     def __del__(self):
         try:
