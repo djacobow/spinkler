@@ -28,6 +28,9 @@ def create_spinkler_app():
     mailer = GoogleStuff.Mailer(cm.getConfig(), ga)
     app = Flask(__name__)
 
+    shifter = bb595.bb595()
+    valves = triacs.Triacs(shifter)
+
     @app.route('/static/<fname>', methods=['GET'])
     def sendStatic(fname):
         print('sendStatic fname',fname)
@@ -37,6 +40,10 @@ def create_spinkler_app():
     @app.route('/configure', methods=['GET'])
     def send_config_page():
         return sendStatic('config.html')
+
+    @app.route('/valves', methods=['GET'])
+    def send_valves_page():
+        return sendStatic('valves.html')
 
     @app.route('/config', methods=['GET'])
     def send_config():
@@ -81,16 +88,33 @@ def create_spinkler_app():
         print(request.args.get('foo','_no_foo'))
         return 'count is {}'.format(shdata['count'])
 
+
+    @app.route('/vctrl', methods=['GET','POST'])
+    def doValves():
+        if request.method == 'POST':
+            reqdata = request.get_json(force=True)
+            pattern = reqdata.get('pattern',0)
+            action  = reqdata.get('action','none')
+            if action == 'set':
+                valves.set(pattern)
+            elif action == 'setbits':
+                valves.setBits(pattern)
+            elif action == 'clrbits':
+                valves.clrBits(pattern)
+            else:
+                pass
+        return jsonify({"current":valves.get()})
+
+
+
     # try to load Google credentials
     c = ga.load_credentials_from_disk()
 
-    shifter = bb595.bb595()
     disp    = lcd.LCD(shifter,'20x4')
     disp.begin()
     disp.clear()
     disp.backlight(0)
 
-    valves = triacs.Triacs(shifter)
     valves.enable(True)
     valves.set(0);
 
