@@ -130,5 +130,5 @@ if __name__ == '__main__':
                 update_display(lcd,{'zones':'3', 'remaining':4922},None)
                 last = now
             else:
-                s8.send8(random.randrange(256),'triacs')
+                s8.shift8(random.randrange(256),'triacs')
   

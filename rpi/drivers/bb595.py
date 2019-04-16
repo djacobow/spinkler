@@ -46,7 +46,7 @@ class bb595:
         else:
             GPIO.output(self.TRC_ENB,GPIO.HIGH)
 
-    def shift8(self,inb):
+    def _shift8(self,inb):
         GPIO.output(self.SCLK,GPIO.HIGH)
         for i in range(8):
             bit = inb & 0x1
@@ -58,8 +58,8 @@ class bb595:
             GPIO.output(self.SCLK,GPIO.HIGH)
             self.halfclock()
 
-    def send8(self,inb,who='lcd',latch=True):
-        self.shift8(inb)
+    def shift8(self,inb,who='lcd',latch=True):
+        self._shift8(inb)
         if latch:
             use_triac = who is not None and who == 'triacs'
             lpin = self.LCLK_TRC if use_triac else self.LCLK_LCD

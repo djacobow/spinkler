@@ -13,7 +13,7 @@ class Triacs(object):
         chunks = list(map(lambda x: bb595.flip8(x), [ (v >> 8) & 0xff, v & 0xff ]))
 
         for i in range(len(chunks)):
-            self.sh8.send8(chunks[i]& 0xff, 'triacs',i == (len(chunks)-1))
+            self.sh8.shift8(chunks[i]& 0xff, 'triacs',i == (len(chunks)-1))
 
         self.current = v
 
@@ -30,8 +30,9 @@ class Triacs(object):
 
     def __del__(self):
         try:
-            for i in range(4):
-                self.sh8.send8(0)
+            bytes_to_send = 4
+            for i in range(bytes_to_send):
+                self.sh8.shift8(0, 'triacs', i == (bytes_to_send-1))
         except Exception as e:
             print("could not turn off triacs because " + repr(e))
 

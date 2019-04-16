@@ -78,7 +78,7 @@ class LCD:
 
     def shift8(self):
         flipped = bb595.flip8(self.curr595)
-        self.shifter.send8(flipped)
+        self.shifter.shift8(flipped)
 
     def setclrmask(self,msk,setclr):
         if setclr:
