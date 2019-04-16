@@ -203,7 +203,9 @@ class SpinklerTimer(object):
         self.last_cal_check = datetime.datetime.fromtimestamp(0)
         self.last_weather_str = RotatingString('', 20 if self.lcd.size() == '20x4' else 16);
         self.last_weather_check = datetime.datetime.fromtimestamp(0)
+        self.last_lcd_restart = datetime.datetime.fromtimestamp(0)
         cal_check_interval = datetime.timedelta(seconds=self.config.get('cal_check_interval',60))
+        lcd_restart_interval = datetime.timedelta(seconds=self.config.get('lcd_restart_interval',60))
         weather_check_interval = datetime.timedelta(seconds=self.config.get('weather_check_interval',60))
 
         while self.keep_running:
@@ -244,7 +246,14 @@ class SpinklerTimer(object):
                             trem  = cstep.get('seconds_remaining','???')
                             zstr  = ','.join([str(z) for z in zones])
                             zinfo = {'zones':zstr,'remaining':trem,'psr_running':self.psr_running}
-                        
+
+                    # this is to occasionally reset the LCD on the occasion
+                    # that a voltage spike from the valves causes it to go wiggy
+                    if now > (self.last_lcd_restart + lcd_restart_interval):
+                        self.lcd.begin()
+                        self.lcd.clear()
+                        self.last_lcd_restart = now
+
                     update_display(self.lcd, zinfo, self.next_ev, self.last_weather_str.tick())
             except Exception as e:
                 print('Exception!')

@@ -26,6 +26,7 @@
     "zone_count": 8,
     "cal_check_interval": 60,
     "weather_check_interval": 600,
+    "lcd_restart_interval": 60,
     "pause_time": 2,
     "tick_interval": 0.5,
     "psr": {
