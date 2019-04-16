@@ -8,12 +8,12 @@ class Triacs(object):
         self.current = 0
 
     def set(self,v):
-        chunks = [ (v >> 8) & 0xff, v & 0xff ]
+        # zones are reverse order of byte, do not latch into
+        # output flops until complete
+        chunks = list(map(lambda x: bb595.flip8(x), [ (v >> 8) & 0xff, v & 0xff ]))
 
-        for chunk in chunks:
-            # zones are reverse order of byte
-            ch = bb595.flip8(chunk)
-            self.sh8.send8(ch & 0xff, 'triacs')
+        for i in range(len(chunks)):
+            self.sh8.send8(chunks[i]& 0xff, 'triacs',i == (len(chunks)-1))
 
         self.current = v
 
