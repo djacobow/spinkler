@@ -12,7 +12,7 @@ def flip8(b):
     b = ((b >> 2) & 0x33) | ((b << 2) & 0xcc)
     b = ((b >> 1) & 0x55) | ((b << 1) & 0xaa)
     return b
-  
+
 def flip4(n):
     n = ((n >> 2) & 0x33) | ((n << 2) & 0xcc)
     n = ((n >> 1) & 0x55) | ((n << 1) & 0xaa)
@@ -25,7 +25,7 @@ class bb595:
         self.SCLK      = 11
         self.DOUT      = 13
         self.LCLK_LCD  = 15
-        self.LCLK_TRC  = 16 
+        self.LCLK_TRC  = 16
         self.TRC_ENB   = 18
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.SCLK,     GPIO.OUT)
@@ -58,17 +58,18 @@ class bb595:
             GPIO.output(self.SCLK,GPIO.HIGH)
             self.halfclock()
 
-    def send8(self,inb,who='lcd'):
+    def send8(self,inb,who='lcd',latch=True):
         self.shift8(inb)
-        use_triac = who is not None and who == 'triacs'
-        lpin = self.LCLK_TRC if use_triac else self.LCLK_LCD
-        GPIO.output(lpin,GPIO.LOW)
-        self.halfclock()
-        GPIO.output(lpin,GPIO.HIGH)         
-        self.halfclock()
-        GPIO.output(lpin,GPIO.LOW)
-        self.halfclock()
-            
+        if latch:
+            use_triac = who is not None and who == 'triacs'
+            lpin = self.LCLK_TRC if use_triac else self.LCLK_LCD
+            GPIO.output(lpin,GPIO.LOW)
+            self.halfclock()
+            GPIO.output(lpin,GPIO.HIGH)
+            self.halfclock()
+            GPIO.output(lpin,GPIO.LOW)
+            self.halfclock()
+
     def __del__(self):
         print('closing and setting as inputs');
         GPIO.setup(self.SCLK,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
